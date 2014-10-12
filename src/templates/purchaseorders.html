@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Cdac purchase orders{% endblock %}
+
+{% block content %}
+    <h2>Purchase orders <small>Click on the icons to view details</small></h2>
+    <p>Legend: <span class="glyphicon glyphicon-ok text-success"></span> - Approved, <span class="glyphicon glyphicon-remove text-danger"></span> - Denied, <span class="glyphicon glyphicon-bullhorn"></span> - Needs to be addressed!</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Purchaser</th>
+                <th>Supplier</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Created Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for order in purchase_orders if order.purchaser == user.email or user_is_admin %}
+            <tr>
+                <td>{{ order.pretty_po_id }}</td>
+                <td>{{ order.purchaser }}</td>
+                <td>{{ order.supplier }}</td>
+                <td>{{ order.product }}</td>
+                <td>{{ order.price }}</td>
+                <td>{{ order.created }}</td>
+                <td><a href='/purchase/{{ order.po_id }}/'><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-{% if order.is_approved %}ok text-success{% elif order.is_denied %}remove text-danger{% else %}bullhorn{% endif %}"></span></button></a></td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">There haven't been any orders created yet!</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p>Want to create a purchase? <a href="/purchase/create/">Click here!</a></p>
+{% endblock %}

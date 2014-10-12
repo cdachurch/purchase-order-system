@@ -1,1 +1,6 @@
 /* Global styles */
+.bg-success,
+.bg-danger {
+    padding: 15px;
+    border-radius: 5px;
+}

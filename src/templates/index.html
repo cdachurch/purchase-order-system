@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}CDAC Purchase Orders{% endblock %}
+
+{% block content %}
+    <h2>CDAC Purchase Orders</h2>
+
+    {% if user %}
+        <p>Use this site to make a purchase order. Do so <a href='/purchase/create/'>here</a>!</p>
+        <p>Here's the <a href='/purchase/'>list of purchase orders</a>.</p>
+    {% else %}
+        <p>Please <a href="{{ login }}">login</a> to use this system.</p>
+    {% endif %}
+{% endblock %}

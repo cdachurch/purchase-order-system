@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Create a new purchase order{% endblock %}
+
+{% block content %}
+    <h2>Create a new purchase order</h2>
+    {% if success %}
+        <p>Great, your purchase order has been created! You should hear back soon (by email) whether your order has been accepted or denied.</p>
+    {% else %}
+        {% if errors %}
+            {% for error in errors %}
+                <p class="bg-danger">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+        <form method="POST" action="/purchase/create/">
+            <input type="hidden" id="email" name="email" value="{{ user.email }}" readonly class="form-control" />
+            <div class="form-group">
+                <label for="supplier">Name of the supplier:</label>
+                <input type="text" id="supplier" name="supplier" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="product">Product being purchased:</label>
+                <input type="text" id="product" name="product" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="price">Price (without $):</label>
+                <input type="number" id="price" name="price" min="0" class="form-control" />
+            </div>
+            <input type="submit" class="btn btn-primary" />
+        </form>
+    {% endif %}
+{% endblock %}

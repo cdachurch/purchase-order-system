@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}New user{% endblock %}
+
+{% block heading %}
+<h2>User</h2>
+{% endblock %}
+
+{% block content %}
+{% if new_user %}
+    <p>Welcome to this page. Let's get some info about yourself:</p>
+    <form method='post' action='/user/new/'>
+        <div class="form-group">
+            <label for='name'>Name</label>
+            <input type='text' name='name' id='name' class="form-control"/>
+            <span class="help-block">Your name will be displayed when you are logged in.</span>
+        </div>
+        <input type='hidden' name='email' id='email' value='{{ user }}' readonly class="form-control"/>
+        <input type='submit' class="btn btn-default"/>
+    </form>
+{% endif %}
+
+{% endblock %}

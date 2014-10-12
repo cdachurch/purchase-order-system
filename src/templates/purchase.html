@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Respond to a purchase order{% endblock %}
+
+{% block content %}
+    <h2>Purchase order #{{ pretty_po_id }}</h2>
+    <p>Someone with an email of {{ purchaser }} has made a purchase order request. If you don't know who that is, feel free to just leave this page. On the off chance you do know who they are, here's what they are looking to order:</p>
+    <table class="table">
+        <tr>
+            <td>Supplier:</td>
+            <td>{{ supplier }}</td>
+        </tr>
+        <tr>
+            <td>Product:</td>
+            <td>{{ product }}</td>
+        </tr>
+        <tr>
+            <td>Price:</td>
+            <td>{{ price }}</td>
+        </tr>
+    </table>
+    <div>
+        {% if user_is_admin and not is_addressed %}
+            <button class="btn-lg btn-primary pull-left" data-toggle="modal" data-target="#purchaseModal">Address purchase order</button>
+        {% endif %}
+        {% if is_addressed %}
+            {% if is_approved %}
+                <p class="bg-success">This request has already been approved!</p>
+            {% elif is_denied %}
+                <p class="bg-danger">This request has already been denied!</p>
+            {% endif %}
+            <p>Think this is a mistake? Contact your <a href="mailto:gholtslander@cdac.ca">administrator</a>.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="purchaseModal" tabindex="-1" role="dialog" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="purchaseModalLabel">Approve or deny purchase order</h4>
+      </div>
+      <div class="modal-body">
+        Do you want to approve or deny their request? An email will be sent to {{ purchaser }} based on your action.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="accept-btn" data-dismiss="modal">Approve</button>
+        <button type="button" class="btn btn-danger" id="deny-btn" data-dismiss="modal">Deny</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+    $(function() {
+        var $acceptButton = $("#accept-btn");
+        var $denyButton = $("#deny-btn");
+
+        $acceptButton.click(function() {
+            var acceptLink = "/api/v1/purchase/accept/{{ po_id }}/";
+            addressRequest(acceptLink);
+        });
+        $denyButton.click(function(event) {
+            var denyLink = "/api/v1/purchase/deny/{{ po_id }}/";
+            addressRequest(denyLink);
+        });
+
+        var addressRequest = function(link) {
+            $.ajax({
+                type: "GET",
+                url: link
+            }).done(function() {
+                alert("The request was addressed successfully.");
+            }).fail(function() {
+                alert("There was a problem, please contact gholtslander@cdac.ca");
+            });
+        };
+    });
+</script>
+{% endblock %}
