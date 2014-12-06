@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Cdac purchase orders{% endblock %}
+{% block list_active %} class="active"{% endblock %}
 
 {% block content %}
     <h2>Purchase orders <small>Click on the icons to view details</small></h2>
-    <p>Legend: <span class="glyphicon glyphicon-ok text-success"></span> - Approved, <span class="glyphicon glyphicon-remove text-danger"></span> - Denied, <span class="glyphicon glyphicon-bullhorn"></span> - Needs to be addressed!</p>
-    <table class="table">
+    <p>Legend: <span class="glyphicon glyphicon-ok text-success"></span> - Approved, <span class="glyphicon glyphicon-remove text-danger"></span> - Denied, <span class="glyphicon glyphicon-bullhorn"></span> - Pending, <span class="glyphicon glyphicon-ban-circle"></span> - Cancelled</p>
+    <div class="table-responsive">
+    <table class="table" id="poTable">
         <thead>
             <tr>
                 <th>#</th>
@@ -13,27 +14,104 @@
                 <th>Supplier</th>
                 <th>Product</th>
                 <th>Price</th>
+                <th>Account code/description</th>
+                <th>Invoiced</th>
                 <th>Created Date</th>
                 <th>Status</th>
             </tr>
         </thead>
         <tbody>
-        {% for order in purchase_orders if order.purchaser == user.email or user_is_admin %}
-            <tr>
-                <td>{{ order.pretty_po_id }}</td>
-                <td>{{ order.purchaser }}</td>
-                <td>{{ order.supplier }}</td>
-                <td>{{ order.product }}</td>
-                <td>{{ order.price }}</td>
-                <td>{{ order.created }}</td>
-                <td><a href='/purchase/{{ order.po_id }}/'><button type="button" class="btn btn-default"><span class="glyphicon glyphicon-{% if order.is_approved %}ok text-success{% elif order.is_denied %}remove text-danger{% else %}bullhorn{% endif %}"></span></button></a></td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">There haven't been any orders created yet!</td>
-            </tr>
-        {% endfor %}
         </tbody>
     </table>
+    </div>
     <p>Want to create a purchase? <a href="/purchase/create/">Click here!</a></p>
+{% endblock %}
+
+{% block body_scripts %}
+<script type="text/javascript">
+    function pad(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+
+    var invoicePO = function(element) {
+        var poId = element.value;
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/purchase/invoice/" + poId + "/"
+        }).done(function() {
+            // pass
+        }).fail(function() {
+            alert("There was a problem, try again in a few minutes");
+            $("#invoice-done").prop("checked", false);
+        });
+    };
+
+    $(document).ready(function() {
+        $("#poTable").DataTable({
+            {% if user_is_admin or user_is_finance_admin %}
+            "ajax": "/api/v1/purchases/get/",
+            {% elif user is defined and user.email is defined %}
+            "ajax": "/api/v1/purchases/get/?email={{ user.email }}",
+            {% endif %}
+            "columns": [
+                { data: "pretty_po_id",
+                  render: function ( data, type, full, meta ) {
+                    return type === "display" ? pad(data, 4) : data;
+                  }
+                },
+                { data: "purchaser" },
+                { data: "supplier" },
+                { data: "product" },
+                { data: "price",
+                  render: function( data, type, full, meta ) {
+                    return type === "display" ? "$" + data.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') : data;
+                  } 
+                },
+                { data: "account_code",
+                  defaultContent: "None" },
+                { data: "is_invoiced",
+                  defaultContent: false,
+                  render: function( data, type, full, meta ) {
+                    if(type === "display") {
+                        var checkbox = '<input type="checkbox"{% if not user_is_finance_admin %} disabled=""{% endif %}';
+                        checkbox += full.is_invoiced === true ? 'checked' : '';
+                        checkbox += ' value="' + full.po_id + '" onclick="invoicePO(this)">';
+                        return checkbox;
+                    }
+                    return data;
+                  }
+                 },
+                { data: "created_date" },
+                { data: "is_addressed",
+                  defaultContent: false,
+                  render: function( data, type, full, meta ) {
+                    if(type === "display") {
+                        var display = "<a href='/purchase/"+ full.po_id +"/'><button type='button' class='btn btn-default'><span class='glyphicon glyphicon-";
+                        if(full.is_approved === true) {
+                            display += "ok text-success";
+                        } else if (full.is_denied === true) {
+                            display += "remove text-danger";
+                        } else if (full.is_addressed !== true) {
+                            display += "bullhorn";
+                        } else if (full.is_cancelled === true) {
+                            display += "ban-circle";
+                        }
+                        display += "'></span></button></a>"
+                        return display;
+                    }
+                    return data;
+                  }
+               }
+            ],
+            "createdRow": function(row, data, index) {
+                if(data["is_cancelled"] === true) {
+                    $(row).addClass("bg-cancelled");
+                }
+            },
+            "sorting": [[0, "desc"]]
+        });
+    });
+</script>
 {% endblock %}

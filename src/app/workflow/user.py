@@ -29,14 +29,16 @@ def get_or_create_user(name, email, user_id):
 
 def get_log_in_out_links_and_user():
     logout_url, login_url = get_log_links()
-    user, ndb_user, in_datastore, is_admin = check_and_return_user()
+    user, ndb_user, in_datastore, is_admin, is_finance_admin = check_and_return_user()
     stored_user = ndb_user if ndb_user else user
 
     return {
+        'user2' : user,
         'user': stored_user,
         'in_datastore': in_datastore,
         'login': login_url,
         'logout': logout_url,
         'user_is_admin': is_admin,
+        'user_is_finance_admin': is_finance_admin
     }
 

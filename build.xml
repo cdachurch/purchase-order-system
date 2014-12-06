@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="base-webapp" default="test" basedir=".">
+<project name="purchase-order-system" default="test" basedir=".">
 
     <property environment="env"/>
     <property name="srcdir" value="${basedir}/src"/>
@@ -71,10 +71,6 @@
             <env key="APPLICATION_ID" value="testbed"/>
             <arg line="${toolsdir}/test_runner.py ${tests}"/>
         </exec>
-    </target>
-
-    <target name="pylint-output-teamcity">
-        <property name="pylint.output.teamcity" value="true"/>
     </target>
 
     <target name="pylint-module-src">

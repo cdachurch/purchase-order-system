@@ -4,6 +4,7 @@ Domain functions for users
 from google.appengine.api import users
 
 from app.models.user import User
+from settings import APPROVAL_ADMINS, FINANCE_ADMINS
 
 def check_and_return_user():
     """
@@ -12,6 +13,8 @@ def check_and_return_user():
     user = users.get_current_user()
     ndb_user = None
     in_datastore = False
+    is_finance_admin = False
+    is_approval_admin = users.is_current_user_admin()
 
     if user:
         user_query = User.lookup_all_by_user_id(user.user_id())
@@ -19,7 +22,10 @@ def check_and_return_user():
             ndb_user = user_query[0]
             in_datastore = True
 
-    return user, ndb_user, in_datastore, users.is_current_user_admin()
+            is_approval_admin = ndb_user.email in APPROVAL_ADMINS
+            is_finance_admin = ndb_user.email in FINANCE_ADMINS
+
+    return user, ndb_user, in_datastore, is_approval_admin, is_finance_admin
 
 def create_user(name, email, user_id, key=None):
     """
@@ -30,6 +36,8 @@ def create_user(name, email, user_id, key=None):
         raise ValueError("name is required")
     if not email:
         raise ValueError("email is required")
+    if not email.find("@"):
+        email = email + "@cdac.ca"
     if not user_id:
         raise ValueError("user_id is required")
     if not key:

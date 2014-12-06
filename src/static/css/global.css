@@ -1,6 +1,16 @@
 /* Global styles */
 .bg-success,
-.bg-danger {
+.bg-danger,
+.bg-info {
     padding: 15px;
     border-radius: 5px;
+}
+
+.bg-cancelled {
+    color: #dbdbdb;
+    font-style: italic;
+}
+
+body {
+    padding-bottom: 70px;
 }

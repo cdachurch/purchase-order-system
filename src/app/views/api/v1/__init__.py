@@ -21,23 +21,26 @@ class API_CONSTANTS(object):
     API_USER = "apiUser"
     API_KEY = "apiKey"
     USERNAME = "username"
+    EMAIL = "email"
     PRODUCT = "product"
     SUPPLIER = "supplier"
     PRICE = "price"
     ACCEPTED = "accepted"
     DENIED = "denied"
+    ACCOUNT_CODE = "accountCode"
     RETURN_CONTENT_TYPE = "application/json"
+    PO_ID = "poId"
 
     ACCEPTED_SUBJECT = "Your purchase order was approved"
     ACCEPTED_EMAIL_HTML = """
         <h2>Purchase order approved!</h2>
 
-        <p>Your purchase order number is #{0}. Here's what this purchase order covers:</p>
+        <p>Your purchase order number is #{ppoid}. Here's what this purchase order covers:</p>
 
         <ul>
-            <li>Supplier: {1}</li>
-            <li>Product: {2}</li>
-            <li>Price: {3}</li>
+            <li>Supplier: {supplier}</li>
+            <li>Product: {product}</li>
+            <li>Price: ${:,.2f}</li>
         </ul>
 
         <p>Have a nice day!</p>
@@ -45,11 +48,17 @@ class API_CONSTANTS(object):
 
     DENIED_SUBJECT = "Your purchase order was denied"
     DENIED_EMAIL_HTML = """
-        <h2>Purchase order denied!</h2>
+        <h2>Purchase order #{ppoid} denied!</h2>
 
-        <p>Your purchase order number has been denied.</p>
+        <p>Your purchase order #{ppoid} has been denied. Here's what was on it:</p>
 
-        <p>Please contact administration for an explanation, if you desire (do not reply to this email).</p>
+        <ul>
+            <li>Supplier: {supplier}</li>
+            <li>Product: {product}</li>
+            <li>Price: ${:,.2f}</li>
+        </ul>
+
+        <p>Contact administration for an explanation - please do not reply to this email.</p>
     """
 
 
@@ -80,13 +89,16 @@ class BaseApiMixin(RequestHandler):
 class AddressPurchaseOrderMixin(object):
 
     def send_email(self, to, how, po_entity):
+        supplier = po_entity.supplier
+        product = po_entity.product
+        price = po_entity.price
         pretty_po_id = po_entity.pretty_po_id
         if how == API_CONSTANTS.ACCEPTED:
-            supplier = po_entity.supplier
-            product = po_entity.product
-            price = po_entity.price
             send_message(to, API_CONSTANTS.ACCEPTED_SUBJECT,
-                         html=API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(pretty_po_id, supplier, product, price))
+                         html=API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
+                                 supplier=supplier, product=product))
         elif how == API_CONSTANTS.DENIED:
-            send_message(to, API_CONSTANTS.DENIED_SUBJECT, html=API_CONSTANTS.DENIED_EMAIL_HTML)
+            send_message(to, API_CONSTANTS.DENIED_SUBJECT, 
+                         html=API_CONSTANTS.DENIED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
+                                 supplier=supplier, product=product))
 

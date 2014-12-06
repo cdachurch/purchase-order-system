@@ -1,8 +1,8 @@
-application: cdac-purchaseorder
-version: 2
+application: cdac-demo-purchaseorder
+version: 1-2-1-copy-updates-plus-protecting-create-page
 runtime: python27
 api_version: 1
-threadsafe: false
+threadsafe: true
 
 libraries:
 - name: jinja2

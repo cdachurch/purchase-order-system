@@ -3,33 +3,64 @@
 {% block title %}Respond to a purchase order{% endblock %}
 
 {% block content %}
-    <h2>Purchase order #{{ pretty_po_id }}</h2>
-    <p>Someone with an email of {{ purchaser }} has made a purchase order request. If you don't know who that is, feel free to just leave this page. On the off chance you do know who they are, here's what they are looking to order:</p>
+    <h2>Purchase order #{{ pretty_po_id|pad }}{% if is_cancelled %} <small class="bg-cancelled">This PO is cancelled</small>{% endif %}</h2>
     <table class="table">
+        <tr>
+            <td>Purchaser:</td>
+            <td>{{ purchaser }}</td>
+        </tr>
         <tr>
             <td>Supplier:</td>
             <td>{{ supplier }}</td>
         </tr>
         <tr>
             <td>Product:</td>
-            <td>{{ product }}</td>
+            <td>{{ product|safe }}</td>
         </tr>
         <tr>
             <td>Price:</td>
-            <td>{{ price }}</td>
+            <td>{{ price|currency }}</td>
+        </tr>
+        <tr>
+            <td>Account code:</td>
+            <td>{{ account_code }}</td>
+        </tr>
+        {% if approved_by %}
+        <tr>
+            <td>Approved by:</td>
+            <td>{{ approved_by }}
+        </tr>
+        {% endif %}
+        <tr>
+            <td>Invoice received?</td>
+            <td><input type="checkbox"{% if is_invoiced %} checked{% endif %}{% if user_is_finance_admin %} value={{ po_id }}{% else %} disabled{% endif %} /></td>
         </tr>
     </table>
     <div>
         {% if user_is_admin and not is_addressed %}
-            <button class="btn-lg btn-primary pull-left" data-toggle="modal" data-target="#purchaseModal">Address purchase order</button>
+            <button class="btn-lg btn-primary" data-toggle="modal" data-target="#purchaseModal">Address purchase order</button>
         {% endif %}
+
         {% if is_addressed %}
             {% if is_approved %}
-                <p class="bg-success">This request has already been approved!</p>
+                <p class="bg-success">This request has been approved!</p>
             {% elif is_denied %}
-                <p class="bg-danger">This request has already been denied!</p>
+                <p class="bg-danger">This request has been denied!</p>
+            {% elif is_cancelled %}
+                <p class="bg-cancelled">This request has been cancelled.</p>
             {% endif %}
             <p>Think this is a mistake? Contact your <a href="mailto:gholtslander@cdac.ca">administrator</a>.</p>
+        {% endif %}
+
+        {% if user_is_finance_admin %}
+        <hr />
+            {% if is_cancelled %}
+            <p>This PO was cancelled, but you can reinstate it by clicking the button below.</p>
+            <button class="btn-lg btn-default" id="cancel-btn">Reinstate this purchase order</button>
+            {% else %}
+            <p>Important note: This button will do its work immediately, without confirmation. Consider this your warning.</p>
+            <button class="btn-lg btn-default" id="cancel-btn">Cancel this purchase order</button>
+            {% endif %}
         {% endif %}
     </div>
 </div>
@@ -49,22 +80,28 @@
         <button type="button" class="btn btn-danger" id="deny-btn" data-dismiss="modal">Deny</button>
       </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 
 {% block body_scripts %}
 <script type="text/javascript">
     $(function() {
+        {% if user_is_admin or user_is_finance_admin %}
         var $acceptButton = $("#accept-btn");
         var $denyButton = $("#deny-btn");
+        var $cancelButton = $("#cancel-btn");
 
         $acceptButton.click(function() {
             var acceptLink = "/api/v1/purchase/accept/{{ po_id }}/";
             addressRequest(acceptLink);
         });
-        $denyButton.click(function(event) {
+        $denyButton.click(function() {
             var denyLink = "/api/v1/purchase/deny/{{ po_id }}/";
             addressRequest(denyLink);
+        });
+        $cancelButton.click(function() {
+            var cancelLink = "/api/v1/purchase/cancel/{{ po_id }}/";
+            addressRequest(cancelLink);
         });
 
         var addressRequest = function(link) {
@@ -72,11 +109,26 @@
                 type: "GET",
                 url: link
             }).done(function() {
-                alert("The request was addressed successfully.");
+                // alert("The request was affected successfully.");
+                location.reload();
             }).fail(function() {
                 alert("There was a problem, please contact gholtslander@cdac.ca");
             });
         };
+
+        $("input[type=checkbox]").click(function() {
+            var poId = $(this)[0].value;
+            $.ajax({
+                type: "GET",
+                url: "/api/v1/purchase/invoice/" + poId + "/"
+            }).done(function() {
+                // pass
+            }).fail(function() {
+                alert("There was a problem, try again in a few minutes");
+                $("#invoice-done").prop("checked", false);
+            });
+        });
+        {% endif %}
     });
 </script>
 {% endblock %}

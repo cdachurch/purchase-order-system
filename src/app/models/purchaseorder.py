@@ -15,10 +15,17 @@ class PurchaseOrder(BaseModel):
     supplier = ndb.StringProperty()
     product = ndb.StringProperty()
     price = ndb.FloatProperty()
+    approved_by = ndb.StringProperty()
+    account_code = ndb.StringProperty()
     # these default to False (perfect!)
     is_approved = ndb.BooleanProperty()
     is_denied = ndb.BooleanProperty()
-    is_addressed = ndb.ComputedProperty(lambda self: self.is_approved or self.is_denied)
+    is_invoiced = ndb.BooleanProperty()
+    is_cancelled = ndb.BooleanProperty()
+
+    is_addressed = ndb.ComputedProperty(lambda self: self.is_approved or self.is_denied or self.is_cancelled)
+
+    VALID_ORDER_DIRECTIONS = ["ASC", "DESC"]
 
     @classmethod
     def build_key(cls, po_id):
@@ -34,12 +41,16 @@ class PurchaseOrder(BaseModel):
             "supplier": self.supplier,
             "product": self.product,
             "price": self.price,
+            "account_code": self.account_code,
             "is_approved": self.is_approved,
             "is_denied": self.is_denied,
             "is_addressed": self.is_addressed,
-            "created_date": self.created,
-            "last_updated": self.updated,
-            "deleted_date": self.deleted,
+            "is_invoiced": self.is_invoiced,
+            "is_cancelled": self.is_cancelled,
+            "approved_by": self.approved_by,
+            "created_date": self.created.strftime('%Y-%m-%d') if self.created else None,
+            "last_updated": self.updated.strftime('%Y-%m-%d') if self.updated else None,
+            "deleted_date": self.deleted.strftime('%Y-%m-%d') if self.deleted else None,
         }
 
     @classmethod
@@ -61,4 +72,23 @@ class PurchaseOrder(BaseModel):
         if limit and not isinstance(limit, int):
             raise ValueError("limit must be an integer")
         query = cls.query().order(cls.pretty_po_id)
+        return query.fetch(limit=limit)
+
+    @classmethod
+    def get_all_purchase_orders_and_order_by_pretty_po_id(cls, order_direction, limit=None):
+        """ Get all purchase orders, ordered by pretty_po_id """
+        if not order_direction:
+            raise ValueError("order direction must be provided (ASC, DESC)")
+        if limit and not isinstance(limit, int):
+            raise ValueError("limit must be an integer")
+        query = cls.query().order(cls.pretty_po_id) if order_direction == "ASC" else \
+                    cls.query().order(-cls.created)
+        return query.fetch(limit=limit)
+
+    @classmethod
+    def get_purchase_orders_by_purchaser(cls, purchaser, limit=None):
+        """ Get purchase orders with a query """
+        if not purchaser:
+            raise ValueError("purchaser (email address) must be provided")
+        query = cls.gql("WHERE purchaser = :1", purchaser)
         return query.fetch(limit=limit)
