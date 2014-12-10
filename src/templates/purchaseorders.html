@@ -29,12 +29,6 @@
 
 {% block body_scripts %}
 <script type="text/javascript">
-    function pad(n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    }
-
     var invoicePO = function(element) {
         var poId = element.value;
         $.ajax({
@@ -67,7 +61,7 @@
                 { data: "price",
                   render: function( data, type, full, meta ) {
                     return type === "display" ? "$" + data.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') : data;
-                  } 
+                  }
                 },
                 { data: "account_code",
                   defaultContent: "None" },

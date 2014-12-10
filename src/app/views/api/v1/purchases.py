@@ -2,10 +2,26 @@
 Purchases api endpoints
 """
 from app.views.api.v1 import BaseApiMixin, AddressPurchaseOrderMixin, API_CONSTANTS
-from app.domain.purchase import approve_purchase_order, cancel_purchase_order, create_purchase_order, \
-                                deny_purchase_order, get_all_purchase_orders, get_purchase_order_entity, \
-                                get_purchase_order_to_dict, get_purchase_orders_by_purchaser
+from app.domain.purchase import approve_purchase_order, cancel_purchase_order, create_interim_purchase_order, \
+                                create_purchase_order, deny_purchase_order, get_all_purchase_orders, \
+                                get_purchase_order_entity, get_purchase_order_to_dict, \
+                                get_purchase_orders_by_purchaser
 from app.domain.user import check_and_return_user
+
+
+class CreateInterimPurchaseApi(BaseApiMixin):
+    """
+    API to create interim purchase orders
+    """
+    def post(self):
+        po_entity = create_interim_purchase_order()
+        return_dict = {
+            "data": {
+                "po_id": po_entity.po_id,
+                "pretty_po_id": po_entity.pretty_po_id
+            }
+        }
+        self.return_data_with_code(200, return_dict)
 
 
 class PurchaseGetApi(BaseApiMixin):
@@ -30,7 +46,7 @@ class PurchaseGetApi(BaseApiMixin):
                 po_entitys = get_all_purchase_orders(order_direction="DESC")
             return_dict = {
                 "data": []
-            }   
+            }
             for po_entity in po_entitys:
                 po_dict = get_purchase_order_to_dict(po_entity=po_entity)
                 return_dict["data"].append(po_dict)

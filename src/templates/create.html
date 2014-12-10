@@ -8,10 +8,13 @@
     {% if not user %}
         <p>Please <a href="{{ login }}">login</a> to access this functionality</p>
     {% else %}
-        <h2>Create a new purchase order</h2>
+        <h2>Create a new purchase order <small id="ppoid"></small></h2>
         {% if success %}
             <p>Great, your purchase order has been created! You should hear back soon (by email) whether your order has been accepted or denied.</p>
         {% else %}
+            <label>
+                <input type="checkbox" name="get-ppoid-early" id="get-ppoid-early"> Are you purchasing from a "Sisco" style system?
+            </label>
             {% if errors %}
                 {% for error in errors %}
                     <p class="bg-danger">{{ error }}</p>
@@ -41,6 +44,7 @@
                     <label for="price"><span class="text-danger">*</span> Price (without $):</label>
                     <input type="text" id="price" name="price" min="0" class="form-control" value="{{ form.price }}" required/>
                 </div>
+                <input type="hidden" id="_poid" name="_poid">
                 <div class="form-group">
                     <label for="accountcode">Account code/description:</label>
                     <input type="text" id="accountcode" name="accountcode" class="form-control" value="{{ form.account_code }}" />
@@ -54,7 +58,7 @@
 {% block body_scripts %}
 <script type="text/javascript">
     $(document).ready(function (){
-        $("#is-multiline-po").click(function() {
+        $("#is-multiline-po").on("click", function() {
             var isChecked = $.prop($(this)[0], "checked");
             if(isChecked) {
                 $("#singleline").addClass("hidden");
@@ -65,6 +69,26 @@
                 $("#singleline").removeClass("hidden");
             }
         });
+
+        $("#get-ppoid-early").on("click", function() {
+            var isChecked = $.prop($(this)[0], "checked");
+            if(isChecked === true && confirm("Are you sure? This will 'reserve' a poid, this cannot be undone")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/api/v1/purchase/create/interim/"
+                }).done(function(data) {
+                    var pretty_po_id = data.data.pretty_po_id;
+                    var po_id = data.data.po_id;
+                    $("#ppoid").html("- PO #" + pad(pretty_po_id, 4));
+                    $("#_poid").val(po_id);
+                    $("#get-ppoid-early").attr("disabled", true);
+                }).fail(function() {
+                    alert("We weren't able to retrieve a new PO#, try again later");
+                });
+            } else {
+                $.prop($(this)[0], "checked", false);
+            }
+        })
     });
 </script>
 {% endblock %}

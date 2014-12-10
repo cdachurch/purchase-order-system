@@ -22,6 +22,7 @@ class PurchaseOrder(BaseModel):
     is_denied = ndb.BooleanProperty()
     is_invoiced = ndb.BooleanProperty()
     is_cancelled = ndb.BooleanProperty()
+    is_complete = ndb.BooleanProperty()
 
     is_addressed = ndb.ComputedProperty(lambda self: self.is_approved or self.is_denied or self.is_cancelled)
 

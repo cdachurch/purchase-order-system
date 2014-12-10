@@ -1,6 +1,7 @@
 """
 Domain code for purchase orders
 """
+import logging
 import uuid
 
 from app.domain.user import check_and_return_user
@@ -25,7 +26,7 @@ def cancel_purchase_order(po_entity):
     """ Mark a purchase order as cancelled, clearing the approved or denied status as well """
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
-    
+
     po_entity.is_cancelled = not po_entity.is_cancelled
     po_entity.is_approved = False
     po_entity.is_denied = False
@@ -44,12 +45,19 @@ def create_purchase_order(purchaser, supplier, product, price, po_id=None, accou
         raise ValueError("price is a required field")
     if not po_id:
         # generate a unique string
-        po_id = str(uuid.uuid4()).split("-")[-1]
+        generated_po_id = str(uuid.uuid4()).split("-")[-1]
 
-    new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
+    if po_id:
+        new_po_key = PurchaseOrder.build_key(po_id)
+        logging.info("Got a po_id! %s", po_id)
+        new_po = new_po_key.get()
+        logging.info(new_po)
+    else:
+        new_po = PurchaseOrder(key=PurchaseOrder.build_key(generated_po_id))
+        new_po.po_id = generated_po_id
+        new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+        po_id = generated_po_id
 
-    new_po.po_id = po_id
-    new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
     new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
     new_po.supplier = supplier
     new_po.product = product
@@ -60,6 +68,18 @@ def create_purchase_order(purchaser, supplier, product, price, po_id=None, accou
     new_po.put()
 
     return po_id
+
+
+def create_interim_purchase_order():
+    """ Creates an interim purchase order, to be finalized later """
+    po_id = str(uuid.uuid4()).split("-")[-1]
+    new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
+
+    new_po.po_id = po_id
+    new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+    new_po.put()
+
+    return new_po
 
 
 def deny_purchase_order(po_entity):
@@ -79,7 +99,7 @@ def get_purchase_order_entity(po_id):
 
 
 def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
-    """ 
+    """
     Takes either a po_id or pretty_po_id to return that purchase order's dictionary representation
     """
     if po_id:
@@ -112,7 +132,7 @@ def send_admin_email_for_new_po(po_id):
     if not po_dict:
         raise ValueError("There is no purchase order for this po_id: %s" % po_id)
 
-    _, user, _, _, _ = check_and_return_user() 
+    _, user, _, _, _ = check_and_return_user()
     username = user.email if user.email.find("@") else user.email + "@cdac.ca"
     real_name = user.name;
     supplier = po_dict["supplier"]
@@ -135,7 +155,7 @@ def send_admin_email_for_new_po(po_id):
         </ul>
         <p>To approve or deny this request, click <a href='{approval_link}'>here</a>.</p>
         <p>Thank you, and have a great day!</p>
-    """.format(price, real_name=real_name, supplier=supplier, product=product, 
+    """.format(price, real_name=real_name, supplier=supplier, product=product,
                approval_link=approval_link)
 
     send_message(APPROVAL_ADMINS, subject, html=email_template)
