@@ -93,7 +93,6 @@ class PurchaseCreateView(TemplatedView):
             account_code = post_body.get("accountcode")
 
             po_id = create_purchase_order(purchaser, supplier, product, price, po_id=_po_id, account_code=account_code)
-            logging.info("Not getting here? %s", po_id)
         except (ValueError, KeyError) as ve:
             context["form"] = {
                 "purchaser": purchaser,
@@ -105,10 +104,8 @@ class PurchaseCreateView(TemplatedView):
             context["errors"] = [ve.message]
 
         if po_id:
-            logging.info("Not getting here?")
             context["success"] = True
             context["po_id"] = po_id
-            logging.info("Not getting here with po_id: %s", po_id)
             send_admin_email_for_new_po(po_id)
 
         self.get(**context)

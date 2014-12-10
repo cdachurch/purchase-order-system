@@ -24,5 +24,5 @@ APPROVAL_ADMINS = [
 FINANCE_ADMINS = [
     "dwiebe",
     "gdholtslander",
-    # "test@example.com"
+    "test@example.com"
 ]
