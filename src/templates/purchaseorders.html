@@ -46,7 +46,7 @@
         $("#poTable").DataTable({
             {% if user_is_admin or user_is_finance_admin %}
             "ajax": "/api/v1/purchases/get/",
-            {% elif user is defined and user.email is defined %}
+            {% elif user and user.email %}
             "ajax": "/api/v1/purchases/get/?email={{ user.email }}",
             {% endif %}
             "columns": [
@@ -60,6 +60,7 @@
                 { data: "product" },
                 { data: "price",
                   render: function( data, type, full, meta ) {
+                    if (data == null) return "";
                     return type === "display" ? "$" + data.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') : data;
                   }
                 },
