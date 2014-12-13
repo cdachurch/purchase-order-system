@@ -28,7 +28,7 @@ class PurchaseView(TemplatedView):
         except ValueError as ve:
             self.render_response("404.html", **context)
             return
-        
+
         context.update(po_dict)
         context["bread_crumbs"] = bread_crumbs
 
@@ -67,7 +67,7 @@ class PurchaseCreateView(TemplatedView):
             context["form"] = {}
         # Add the login/out links and the user info
         context.update(get_log_in_out_links_and_user())
-        
+
         self.render_response("create.html", **context)
 
     def post(self):
@@ -87,11 +87,12 @@ class PurchaseCreateView(TemplatedView):
                 product = product.replace("\r\n", "<br />")
                 product = product.replace("\n", "<br />")
             price = post_body["price"]
+            _po_id = post_body.get("_poid")
             # Strip any $ or , from the price
             price = price.replace("$", "").replace(",", "")
             account_code = post_body.get("accountcode")
 
-            po_id = create_purchase_order(purchaser, supplier, product, price, account_code=account_code)
+            po_id = create_purchase_order(purchaser, supplier, product, price, po_id=_po_id, account_code=account_code)
         except (ValueError, KeyError) as ve:
             context["form"] = {
                 "purchaser": purchaser,
@@ -108,5 +109,3 @@ class PurchaseCreateView(TemplatedView):
             send_admin_email_for_new_po(po_id)
 
         self.get(**context)
-
-
