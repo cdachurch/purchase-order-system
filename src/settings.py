@@ -18,6 +18,7 @@ APPROVAL_ADMINS = [
     "gdholtslander",
     "gholtslander",
     "lkrieg",
+    "smyhre",
     # "test@example.com"
 ]
 
