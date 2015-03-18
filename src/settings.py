@@ -17,7 +17,7 @@ if os.environ['SERVER_SOFTWARE'].startswith('Development'):
 APPROVAL_ADMINS = [
     "gdholtslander",
     "gholtslander",
-    "lkrieg",
+    # "lkrieg",
     "smyhre",
     # "test@example.com"
 ]

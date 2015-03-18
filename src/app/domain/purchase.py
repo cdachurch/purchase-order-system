@@ -18,6 +18,7 @@ def approve_purchase_order(po_entity, approver):
         raise ValueError("A purchase order must be approved by someone")
     po_entity.approved_by = approver.name
     po_entity.is_approved = True
+    logging.info("%s approved po# %s (%s)", approver.name, po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
     return po_entity
 
@@ -30,6 +31,7 @@ def cancel_purchase_order(po_entity):
     po_entity.is_cancelled = not po_entity.is_cancelled
     po_entity.is_approved = False
     po_entity.is_denied = False
+    logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
 
 
@@ -49,7 +51,6 @@ def create_purchase_order(purchaser, supplier, product, price, po_id=None, accou
 
     if po_id:
         new_po_key = PurchaseOrder.build_key(po_id)
-        logging.info("Got a po_id! %s", po_id)
         new_po = new_po_key.get()
         logging.info(new_po)
     else:
@@ -87,6 +88,7 @@ def deny_purchase_order(po_entity):
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
     po_entity.is_denied = True
+    logging.info("po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
 
 
