@@ -36,9 +36,12 @@
                     <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
                     <input type="text" id="product" name="product" class="form-control" value="{{ form.product }}" />
                 </div>
+                <div class="bg-danger hidden" id="text-too-long">
+                    Your product description is <span id="characters"></span> long! It must be 500 characters or less.
+                </div>
                 <div class="form-group hidden" id="multiline">
                     <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
-                    <textarea class="form-control" rows="3" name="multiline-product" placeholder="Enter multiple lines for your purchase order here"></textarea>
+                    <textarea class="form-control" id="multiline-product" maxlength="499" rows="3" name="multiline-product" placeholder="Enter multiple lines for your purchase order here"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="price"><span class="text-danger">*</span> Price (without $):</label>
@@ -49,7 +52,7 @@
                     <label for="accountcode">Account code/description:</label>
                     <input type="text" id="accountcode" name="accountcode" class="form-control" value="{{ form.account_code }}" />
                 </div>
-                <input type="submit" class="btn btn-primary" />
+                <input type="submit" class="btn btn-primary" id="create-form-submit" />
             </form>
         {% endif %}
     {% endif %}
