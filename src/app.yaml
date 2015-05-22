@@ -1,5 +1,5 @@
 application: cdac-demo-purchaseorder
-version: 1-3-2-add-dates-to-po-details-limit-po-length
+version: 1-3-3-fix-footer-small-devices
 runtime: python27
 api_version: 1
 threadsafe: true
