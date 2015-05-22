@@ -12,5 +12,16 @@
 }
 
 body {
-    padding-bottom: 70px;
+    padding-bottom: 100px;
+}
+
+.footer-image {
+    height: 40px;
+}
+
+@media (max-width: 768px) {
+    .footer-image {
+        height: auto;
+        width: 100%;
+    }
 }
