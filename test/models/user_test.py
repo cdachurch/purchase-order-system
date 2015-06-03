@@ -41,4 +41,21 @@ class UserModelTests(GaeTestCase):
 
     def test_get_all_users_limit_must_be_int(self):
         with self.assertRaises(ValueError):
-            User.get_users('hi')
+            User.get_users('will not work')
+
+    def test_lookup_user_by_id_requires_user_id(self):
+        with self.assertRaises(ValueError):
+            User.lookup_all_by_user_id(None)
+
+    def test_lookup_user_by_id_returns_correct_user(self):
+        found_users = User.lookup_all_by_user_id(self.user_id2)
+        self.assertIsNotNone(found_users)
+
+        found_user = found_users[0]
+        self.assertEqual(found_user.email, self.email2)
+        self.assertEqual(found_user.name, self.name2)
+
+    def test_lookup_user_by_id_returns_empty_list(self):
+        # Hasn't been created yet, shouldn't return any.
+        not_found = User.lookup_all_by_user_id(self.user_id)
+        self.assertEqual([], not_found)
