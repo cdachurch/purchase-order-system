@@ -56,11 +56,15 @@ class PurchaseOrder(BaseModel):
     @classmethod
     def get_next_pretty_po_id(cls):
         query = cls.query().order(-cls.pretty_po_id)
-        current_highest_ppoid = query.iter().next().pretty_po_id
 
-        # If it exists, increment it by one to get the next number,
-        # otherwise just return 1 as there may not be any POs yet.
-        return current_highest_ppoid + 1 if current_highest_ppoid else 1
+        if len(list(query.iter())) > 0:
+            current_highest_ppoid = query.iter().next().pretty_po_id
+            # If it exists, increment it by one to get the next number,
+            # otherwise just return 1 as there may not be any POs yet.
+            return current_highest_ppoid + 1 if current_highest_ppoid else 1
+        else:
+            return 1
+
 
     @classmethod
     def get_all_purchase_orders(cls, limit=None):

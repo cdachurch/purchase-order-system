@@ -29,7 +29,7 @@ class UserModelTests(GaeTestCase):
     def test_get_all_users_returns_correct_number_of_users(self):
         users = User.get_users()
         self.assertEqual(1, len(users))
-        # Create a user, try it again
+        # Create a user, try it again.
         user1 = create_user(self.name, self.email, self.user_id)
         users = User.get_users()
         self.assertEqual(2, len(users))
