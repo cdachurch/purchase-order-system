@@ -105,4 +105,26 @@ class PurchaseOrderModelTests(GaeTestCase):
 
     def test_get_all_purchase_orders_and_order_by_pretty_po_id_retrieves_pos_in_order(self):
         self.createPurchaseOrders()
-        
+        pos = PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id('ASC')
+        self.assertEqual(1, pos[0].pretty_po_id)
+        self.assertEqual(2, pos[1].pretty_po_id)
+
+    def test_get_all_purchase_orders_and_order_by_pretty_po_id_limit_must_be_integer(self):
+        with self.assertRaises(ValueError):
+            PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id('ASC', 'one')
+
+    def test_get_purchase_orders_by_purchaser_must_provide_purchaser(self):
+        with self.assertRaises(ValueError):
+            PurchaseOrder.get_purchase_orders_by_purchaser(None)
+
+    def test_get_purchase_orders_by_purchaser_returns_correct_results(self):
+        self.createPurchaseOrders()
+        pos = PurchaseOrder.get_purchase_orders_by_purchaser(self.email)
+        self.assertEqual(pos[0].purchaser, self.email)
+
+    def test_to_dict_returns_dictionary(self):
+        self.createPurchaseOrders()
+        po = self.po_keys[0].get()
+        po_dict = po.to_dict()
+        self.assertIsInstance(po_dict, dict)
+        self.assertEqual(po_dict['purchaser'], po.purchaser)
