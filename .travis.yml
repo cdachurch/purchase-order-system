@@ -6,3 +6,4 @@ before_script:
   - unzip -q google_appengine_zip
   - sudo ln -s `pwd`/google_appengine /usr/local/google_appengine
 script: ant test
+sudo: false
