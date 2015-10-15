@@ -57,7 +57,7 @@ class PurchaseOrder(BaseModel):
     def get_next_pretty_po_id(cls):
         query = cls.query().order(-cls.pretty_po_id)
 
-        if len(list(query.iter())) > 0:
+        if query.count():
             current_highest_ppoid = query.iter().next().pretty_po_id
             # If it exists, increment it by one to get the next number,
             # otherwise just return 1 as there may not be any POs yet.
