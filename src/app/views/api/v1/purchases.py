@@ -35,10 +35,7 @@ class PurchaseGetApi(BaseApiMixin):
         email = get_params.get(API_CONSTANTS.EMAIL)
         if po_id:
             po_entity_dict = get_purchase_order_to_dict(po_id=po_id)
-            return_dict = {
-                "data": po_entity_dict
-            }
-            self.return_data_with_code(200, po_entity_dict)
+            return self.return_data_with_code(200, po_entity_dict)
         else:
             if email:
                 po_entitys = get_purchase_orders_by_purchaser(email)
@@ -50,7 +47,7 @@ class PurchaseGetApi(BaseApiMixin):
             for po_entity in po_entitys:
                 po_dict = get_purchase_order_to_dict(po_entity=po_entity)
                 return_dict["data"].append(po_dict)
-            self.return_data_with_code(200, return_dict)
+            return self.return_data_with_code(200, return_dict)
 
 
 class PurchaseCreateApi(BaseApiMixin):
