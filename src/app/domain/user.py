@@ -17,7 +17,7 @@ def check_and_return_user():
     is_approval_admin = users.is_current_user_admin()
 
     if user:
-        user_query = User.lookup_all_by_user_id(user.user_id())
+        user_query = User.get_by_user_id(user.user_id())
         if len(user_query):
             ndb_user = user_query[0]
             in_datastore = True
