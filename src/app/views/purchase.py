@@ -1,14 +1,11 @@
 """
 Views for purchase orders
 """
-import logging
-
 from app.domain.purchase import create_purchase_order, get_purchase_order_to_dict, \
-                                get_all_purchase_orders, get_purchase_orders_by_purchaser, \
                                 send_admin_email_for_new_po
-from app.models.purchaseorder import PurchaseOrder
 from app.views import TemplatedView
 from app.workflow.user import get_log_in_out_links_and_user
+
 
 class PurchaseView(TemplatedView):
     def get(self, po_id):
@@ -25,7 +22,7 @@ class PurchaseView(TemplatedView):
 
         try:
             po_dict = get_purchase_order_to_dict(po_id=po_id)
-        except ValueError as ve:
+        except ValueError:
             self.render_response("404.html", **context)
             return
 

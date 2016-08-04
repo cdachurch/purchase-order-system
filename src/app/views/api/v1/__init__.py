@@ -93,12 +93,12 @@ class AddressPurchaseOrderMixin(object):
         product = po_entity.product
         price = po_entity.price
         pretty_po_id = po_entity.pretty_po_id
-        if how == API_CONSTANTS.ACCEPTED:
-            send_message(to, API_CONSTANTS.ACCEPTED_SUBJECT,
-                         html=API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
-                                 supplier=supplier, product=product))
-        elif how == API_CONSTANTS.DENIED:
-            send_message(to, API_CONSTANTS.DENIED_SUBJECT, 
-                         html=API_CONSTANTS.DENIED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
-                                 supplier=supplier, product=product))
-
+        if all([supplier, product, price, pretty_po_id]):
+            if how == API_CONSTANTS.ACCEPTED:
+                send_message(to, API_CONSTANTS.ACCEPTED_SUBJECT,
+                             html=API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
+                             supplier=supplier, product=product))
+            elif how == API_CONSTANTS.DENIED:
+                send_message(to, API_CONSTANTS.DENIED_SUBJECT,
+                             html=API_CONSTANTS.DENIED_EMAIL_HTML.format(price, ppoid=str(pretty_po_id).zfill(4),
+                             supplier=supplier, product=product))

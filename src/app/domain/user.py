@@ -6,6 +6,7 @@ from google.appengine.api import users
 from app.models.user import User
 from settings import APPROVAL_ADMINS, FINANCE_ADMINS
 
+
 def check_and_return_user():
     """
     Returns a Users.user object, an ndb_user, and whether or not they exist in datastore
@@ -17,15 +18,15 @@ def check_and_return_user():
     is_approval_admin = users.is_current_user_admin()
 
     if user:
-        user_query = User.get_by_user_id(user.user_id())
-        if len(user_query):
-            ndb_user = user_query[0]
+        ndb_user = User.get_by_user_id(user.user_id())
+        if ndb_user:
             in_datastore = True
 
             is_approval_admin = ndb_user.email in APPROVAL_ADMINS
             is_finance_admin = ndb_user.email in FINANCE_ADMINS
 
     return user, ndb_user, in_datastore, is_approval_admin, is_finance_admin
+
 
 def create_user(name, email, user_id, key=None):
     """
@@ -37,7 +38,7 @@ def create_user(name, email, user_id, key=None):
     if not email:
         raise ValueError("email is required")
     if not email.find("@"):
-        email = email + "@cdac.ca"
+        email += "@cdac.ca"
     if not user_id:
         raise ValueError("user_id is required")
     if not key:
@@ -54,6 +55,7 @@ def create_user(name, email, user_id, key=None):
     user.put()
 
     return user
+
 
 def get_current_user():
     """ Get the current user from Google's Users API """
