@@ -2,8 +2,11 @@
 Purchase order model
 """
 from google.appengine.ext import ndb
+from google.appengine.api import memcache
 
 from app.models import BaseModel
+from settings import POS_FOR_PURCHASER_MEMCACHE_KEY, ALL_POS_ORDERED_MEMCACHE_KEY
+
 
 class PurchaseOrder(BaseModel):
     """
@@ -32,6 +35,11 @@ class PurchaseOrder(BaseModel):
         """ Build and return a PurchaseOrder key """
         key = ndb.Key(cls, po_id)
         return key
+
+    def _post_put_hook(self, future):
+        """ Invalidate memcaches whenever a PO gets updated """
+        super(PurchaseOrder, self)._post_put_hook(future)
+        reset_memcache_for_purchase_orders(self.purchaser)
 
     def to_dict(self):
         return {
@@ -65,7 +73,6 @@ class PurchaseOrder(BaseModel):
         else:
             return 1
 
-
     @classmethod
     def get_all_purchase_orders(cls, limit=None):
         """ Gets all purchase orders, ordered by pretty po id """
@@ -92,3 +99,11 @@ class PurchaseOrder(BaseModel):
             raise ValueError("purchaser (email address) must be provided")
         query = cls.gql("WHERE purchaser = :1", purchaser)
         return query.fetch(limit=limit)
+
+
+def reset_memcache_for_purchase_orders(purchaser=None):
+    if purchaser:
+        memcache.delete(POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser))
+
+    for ordering in PurchaseOrder.VALID_ORDER_DIRECTIONS:
+        memcache.delete(ALL_POS_ORDERED_MEMCACHE_KEY.format(ordering))

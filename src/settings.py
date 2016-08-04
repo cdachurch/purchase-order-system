@@ -27,3 +27,6 @@ FINANCE_ADMINS = [
     "gdholtslander",
     # "test@example.com"
 ]
+
+POS_FOR_PURCHASER_MEMCACHE_KEY = 'all-pos-for-{}'
+ALL_POS_ORDERED_MEMCACHE_KEY = 'all-pos-for-order-{}'

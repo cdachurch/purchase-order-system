@@ -4,10 +4,13 @@ Domain code for purchase orders
 import logging
 import uuid
 
+from google.appengine.api import memcache
+
 from app.domain.user import check_and_return_user
 from app.models.purchaseorder import PurchaseOrder
 from app.utility.mailer import send_message
-from settings import APPROVAL_ADMINS, ENVIRONMENT, SERVER_ADDRESS
+from settings import APPROVAL_ADMINS, ENVIRONMENT, SERVER_ADDRESS, POS_FOR_PURCHASER_MEMCACHE_KEY, \
+    ALL_POS_ORDERED_MEMCACHE_KEY
 
 
 def approve_purchase_order(po_entity, approver):
@@ -94,7 +97,7 @@ def deny_purchase_order(po_entity):
 
 def get_purchase_order_entity(po_id):
     """ Get a purchase order entity by id """
-    po_key = PurchaseOrder.build_key(po_id);
+    po_key = PurchaseOrder.build_key(po_id)
     po = po_key.get()
     if po:
         return po
@@ -115,18 +118,31 @@ def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
 
 
 def get_all_purchase_orders(order_direction=None, limit=None):
-    purchase_orders = None
-    if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
-        purchase_orders = PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id(order_direction,
-                                                                                          limit=limit)
-    else:
-        purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
+    cached_pos = memcache.get(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction))
 
-    return purchase_orders
+    if cached_pos:
+        return cached_pos
+    else:
+        if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
+            purchase_orders = PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id(order_direction,
+                                                                                              limit=limit)
+        else:
+            purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
+
+        memcache.set(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction), purchase_orders)
+        return purchase_orders
 
 
 def get_purchase_orders_by_purchaser(purchaser, limit=None):
-    return PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
+    pos_memcache_key = POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser)
+
+    cached_pos = memcache.get(pos_memcache_key)
+    if cached_pos:
+        return cached_pos
+    else:
+        pos = PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
+        memcache.set(pos_memcache_key, pos)
+        return pos
 
 
 def send_admin_email_for_new_po(po_id):
@@ -136,7 +152,7 @@ def send_admin_email_for_new_po(po_id):
 
     _, user, _, _, _ = check_and_return_user()
     username = user.email if user.email.find("@") else user.email + "@cdac.ca"
-    real_name = user.name;
+    real_name = user.name
     supplier = po_dict["supplier"]
     product = po_dict["product"]
     price = po_dict["price"]
