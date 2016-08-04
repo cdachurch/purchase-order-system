@@ -121,6 +121,7 @@ def get_all_purchase_orders(order_direction=None, limit=None):
     cached_pos = memcache.get(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction))
 
     if cached_pos:
+        logging.info('Returning cached pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
         return cached_pos
     else:
         if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
@@ -130,6 +131,7 @@ def get_all_purchase_orders(order_direction=None, limit=None):
             purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
 
         memcache.set(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction), purchase_orders)
+        logging.info('Caching pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
         return purchase_orders
 
 
@@ -138,10 +140,12 @@ def get_purchase_orders_by_purchaser(purchaser, limit=None):
 
     cached_pos = memcache.get(pos_memcache_key)
     if cached_pos:
+        logging.info('Returning cached pos for {}'.format(pos_memcache_key))
         return cached_pos
     else:
         pos = PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
         memcache.set(pos_memcache_key, pos)
+        logging.info('Caching pos for {}'.format(pos_memcache_key))
         return pos
 
 
