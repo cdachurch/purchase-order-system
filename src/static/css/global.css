@@ -16,11 +16,12 @@ body {
 }
 
 .footer-image {
-  height: auto;
+    height: 40px;
 }
 
 @media (max-width: 768px) {
-  .footer-image {
-    width: 100%;
-  }
+    .footer-image {
+        height: auto;
+        width: 100%;
+    }
 }

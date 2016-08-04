@@ -10,7 +10,7 @@ SERVER_ADDRESS = "http://po.cdac.ca/"
 if os.environ['APPLICATION_ID'].find("cdac-demo-purchaseorder") >= 0:
     SERVER_ADDRESS = "http://cdac-demo-purchaseorder.appspot.com/"
     ENVIRONMENT = "DEMO"
-if os.environ['SERVER_SOFTWARE'].startswith('Development'):
+if 'SERVER_SOFTWARE' in os.environ and os.environ['SERVER_SOFTWARE'].startswith('Development'):
     SERVER_ADDRESS = "http://localhost:8080/"
     ENVIRONMENT = "LOCAL"
 
