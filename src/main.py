@@ -13,7 +13,7 @@ TEMPLATE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)),
 
 CONFIG = {
     'webapp2_extras.jinja2': {
-        'filters' : {
+        'filters': {
             'currency': format_currency,
             'vurl': do_vurl,
             'pad': pad_zeros
