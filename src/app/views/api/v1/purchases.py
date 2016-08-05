@@ -45,8 +45,7 @@ class PurchaseGetApi(BaseApiMixin):
                 "data": []
             }
             for po_entity in po_entitys:
-                po_dict = get_purchase_order_to_dict(po_entity=po_entity)
-                return_dict["data"].append(po_dict)
+                return_dict["data"].append(po_entity.to_dict())
             return self.return_data_with_code(200, return_dict)
 
 

@@ -89,7 +89,7 @@ class PurchaseOrder(BaseModel):
         if limit and not isinstance(limit, int):
             raise ValueError("limit must be an integer")
         query = cls.query().order(cls.pretty_po_id) if order_direction == "ASC" else \
-                    cls.query().order(-cls.created)
+            cls.query().order(-cls.created)
         return query.fetch(limit=limit)
 
     @classmethod

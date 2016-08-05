@@ -114,7 +114,7 @@ def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
         else:
             raise ValueError("Couldn't find a purchase order with po_id of %s" % po_id)
     elif po_entity:
-        return po_entity.to_dict() if isinstance(po_entity, PurchaseOrder) else None
+        return po_entity.to_dict()
 
 
 def get_all_purchase_orders(order_direction=None, limit=None):
