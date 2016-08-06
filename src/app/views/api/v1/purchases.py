@@ -38,14 +38,12 @@ class PurchaseGetApi(BaseApiMixin):
             return self.return_data_with_code(200, po_entity_dict)
         else:
             if email:
-                po_entitys = get_purchase_orders_by_purchaser(email)
+                po_entities = get_purchase_orders_by_purchaser(email)
             else:
-                po_entitys = get_all_purchase_orders(order_direction="DESC")
+                po_entities = get_all_purchase_orders(order_direction="DESC")
             return_dict = {
-                "data": []
+                "data": [po_entity.to_dict() for po_entity in po_entities]
             }
-            for po_entity in po_entitys:
-                return_dict["data"].append(po_entity.to_dict())
             return self.return_data_with_code(200, return_dict)
 
 
