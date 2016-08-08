@@ -88,51 +88,12 @@
 {% endblock %}
 
 {% block body_scripts %}
-<script type="text/javascript">
-    $(function() {
-        {% if user_is_admin or user_is_finance_admin %}
-        var $acceptButton = $("#accept-btn");
-        var $denyButton = $("#deny-btn");
-        var $cancelButton = $("#cancel-btn");
-
-        $acceptButton.click(function() {
-            var acceptLink = "/api/v1/purchase/accept/{{ po_id }}/";
-            addressRequest(acceptLink);
-        });
-        $denyButton.click(function() {
-            var denyLink = "/api/v1/purchase/deny/{{ po_id }}/";
-            addressRequest(denyLink);
-        });
-        $cancelButton.click(function() {
-            var cancelLink = "/api/v1/purchase/cancel/{{ po_id }}/";
-            addressRequest(cancelLink);
-        });
-
-        var addressRequest = function(link) {
-            $.ajax({
-                type: "GET",
-                url: link
-            }).done(function() {
-                // alert("The request was affected successfully.");
-                location.reload();
-            }).fail(function() {
-                alert("There was a problem, please contact gholtslander@cdac.ca");
-            });
-        };
-
-        $("input[type=checkbox]").click(function() {
-            var poId = $(this)[0].value;
-            $.ajax({
-                type: "GET",
-                url: "/api/v1/purchase/invoice/" + poId + "/"
-            }).done(function() {
-                // pass
-            }).fail(function() {
-                alert("There was a problem, try again in a few minutes");
-                $("#invoice-done").prop("checked", false);
-            });
-        });
-        {% endif %}
-    });
-</script>
+    {% if user_is_admin or user_is_finance_admin %}
+        <script type="text/javascript">
+            window.templateData = {
+                poId: '{{ po_id }}'
+            }
+        </script>
+        <script type="text/javascript" src="/static/js/pages/purchase.js"></script>
+    {% endif %}
 {% endblock %}

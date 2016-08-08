@@ -6,4 +6,4 @@
   }
 
   window.pad = pad;
-}(window))
+}(window));

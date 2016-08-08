@@ -19,13 +19,13 @@ APPROVAL_ADMINS = [
     "gholtslander",
     # "lkrieg",
     "smyhre",
-    # "test@example.com"
+    "test@example.com"
 ]
 
 FINANCE_ADMINS = [
     "dwiebe",
     "gdholtslander",
-    # "test@example.com"
+    "test@example.com"
 ]
 
 POS_FOR_PURCHASER_MEMCACHE_KEY = 'all-pos-for-{}'

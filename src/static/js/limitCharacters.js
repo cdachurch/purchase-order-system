@@ -17,4 +17,4 @@
       $createFormSubmitBtn.prop('disabled', false);
     }
   });
-} (this.$));
+} (window.jQuery));
