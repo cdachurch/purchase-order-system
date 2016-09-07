@@ -5,3 +5,4 @@
 coverage-report/*
 .tags*
 node_modules
+build

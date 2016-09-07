@@ -13,11 +13,11 @@
   "scripts": {
     "build-js": "webpack",
     "watch-js": "webpack --watch",
-    "build-css": "node-sass --include-path scss src/static/scss/main.scss src/static/css/global.css",
+    "build-css": "node-sass --include-path scss src/static/scss/global.scss src/static/css/global.css",
     "watch-css": "nodemon -e scss -x \"npm run build-css\"",
     "test": "BABEL_JEST_STAGE=0 jest",
-    "build-js:prod": "webpack -p",
-    "build-css:prod": "node-sass --include-path scss build/static/scss/main.scss build/static/css/global.css",
+    "build-js:prod": "echo 'no op'",
+    "build-css:prod": "node-sass --include-path scss build/static/scss/global.scss build/static/css/global.css",
     "build:prod": "npm run clean && cp -r src build && export NODE_ENV=production && npm run build-js:prod && npm run build-css:prod",
     "clean": "rm -rf build",
     "deploy": "npm run build:prod && gcloud app deploy build/app.yaml"
