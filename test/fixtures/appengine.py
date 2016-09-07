@@ -72,24 +72,6 @@ class GaeTestCase(unittest.TestCase):
         import google.appengine.api.urlfetch
         urlfetch.fetch = Mock('urlfetch.fetch', returns_func=fetch_mock, tracker=None)
 
-    def prepare_share_datetime(self, form, days_until_publication):
-        # Mimic the time-processing performed in SM.Share.js
-        now = datetime.utcnow() + timedelta (days=days_until_publication)
-        now_hour = now.hour
-        now_am_pm = 'AM'
-        if now_hour > 11:
-            now_am_pm = 'PM'
-        if now_hour > 12:
-            now_hour = now_hour-12
-        now_minute = now.minute
-
-        form.schedule_time.hour.data = now_hour
-        form.schedule_time.minute.data = now_minute
-        form.schedule_time.am_pm.data = now_am_pm
-        # This timestamp is already in utc - no need to specify a timezone with which to convert to utc
-        form.schedule_time.timezone_offset.data = 0
-        form.schedule_date.data = datetime.strftime(now, "%Y-%m-%d")
-
     def run_deferred_tasks(self, queue_name='default'):
         import base64
         from google.appengine.ext import deferred
@@ -112,40 +94,3 @@ class GaeTestCase(unittest.TestCase):
             self.assertRaises(ValueError, method, **kwargs)
             # restore to original value
             kwargs[key] = value
-
-
-class UrlFetchResponseMock(object):
-
-    def __init__(self):
-        self.raises = None
-        self.content = ''
-        self.content_was_truncated = False
-        self.status_code = 200
-
-        header_date = datetime.now().strftime('%a, %d %b %Y %H:%m:%S')
-        self.headers = {
-            'content-length': '100',
-            'vary': 'Accept-Encoding',
-            'server': 'Google Frontend',
-            'cache-control': 'private',
-            'date': header_date,
-            'content-type': 'application/json'
-        }
-
-
-class UrlShorteningClientMock(object):
-    results = {
-        'http://www.vendasta.com/': 'bit.ly/2gASp4',
-        'http://www.python.org/': 'bit.ly/1njFvk'
-    }
-
-    def __init__(self, raise_exception=False):
-        self.raise_exception = raise_exception
-
-    # pylint: disable=W0613
-    # Unused argument 'long_urls'
-    def shorten_urls(self, long_urls):
-        if self.raise_exception:
-            # if for some reason results gets used after exception it will cause an AttributeError
-            self.results = None
-            raise SMExceptionBitlyApiClient('Error')

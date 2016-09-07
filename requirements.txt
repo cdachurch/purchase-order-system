@@ -1,4 +1,0 @@
-beautifulsoup4==4.3.2
-waitress==0.8.9
-WebOb==1.4
-WebTest==2.0.18
