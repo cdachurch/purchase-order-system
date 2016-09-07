@@ -1,9 +1,0 @@
-language: python
-python:
-    - "2.7"
-before_script:
-  - wget "http://gyamp.com/hiroshi/google_appengine_zip" -nv
-  - unzip -q google_appengine_zip
-  - sudo ln -s $PWD/google_appengine /usr/local/google_appengine
-script: ant test
-sudo: required
