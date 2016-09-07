@@ -1,0 +1,35 @@
+{
+  "name": "purchase-order-system",
+  "version": "1.0.0",
+  "description": "Purchase order system written on Google App Engine",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "node-sass": "^3.3.3",
+    "nodemon": "^1.7.1"
+  },
+  "scripts": {
+    "build-js": "webpack",
+    "watch-js": "webpack --watch",
+    "build-css": "node-sass --include-path scss src/static/scss/main.scss src/static/css/global.css",
+    "watch-css": "nodemon -e scss -x \"npm run build-css\"",
+    "test": "BABEL_JEST_STAGE=0 jest",
+    "build-js:prod": "webpack -p",
+    "build-css:prod": "node-sass --include-path scss build/static/scss/main.scss build/static/css/global.css",
+    "build:prod": "npm run clean && cp -r src build && export NODE_ENV=production && npm run build-js:prod && npm run build-css:prod",
+    "clean": "rm -rf build",
+    "deploy": "npm run build:prod && gcloud app deploy build/app.yaml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdachurch/purchase-order-system.git"
+  },
+  "author": "cdachurch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cdachurch/purchase-order-system/issues"
+  },
+  "homepage": "https://github.com/cdachurch/purchase-order-system#readme"
+}

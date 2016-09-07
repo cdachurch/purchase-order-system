@@ -4,3 +4,4 @@
 *.sass-cache
 coverage-report/*
 .tags*
+node_modules
