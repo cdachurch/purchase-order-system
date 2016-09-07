@@ -1,5 +1,3 @@
-application: cdac-purchaseorder
-version: 1-5-0-memcache-pos
 runtime: python27
 api_version: 1
 threadsafe: true

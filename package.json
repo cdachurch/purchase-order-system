@@ -16,11 +16,12 @@
     "build-css": "node-sass --include-path scss src/static/scss/global.scss src/static/css/global.css",
     "watch-css": "nodemon -e scss -x \"npm run build-css\"",
     "test": "BABEL_JEST_STAGE=0 jest",
-    "build-js:prod": "echo 'no op'",
+    "build-js:prod": "echo 'no op, po system does not have any bundled js right now'",
     "build-css:prod": "node-sass --include-path scss build/static/scss/global.scss build/static/css/global.css",
     "build:prod": "npm run clean && cp -r src build && export NODE_ENV=production && npm run build-js:prod && npm run build-css:prod",
     "clean": "rm -rf build",
-    "deploy": "npm run build:prod && gcloud app deploy build/app.yaml"
+    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml",
+    "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml"
   },
   "repository": {
     "type": "git",
