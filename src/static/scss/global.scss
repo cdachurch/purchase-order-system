@@ -17,10 +17,8 @@ body {
 
 .footer-image {
     height: 40px;
-}
 
-@media (max-width: 768px) {
-    .footer-image {
+    @media (max-width: 768px) {
         height: auto;
         width: 100%;
     }

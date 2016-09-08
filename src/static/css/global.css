@@ -14,8 +14,7 @@ body {
 
 .footer-image {
   height: 40px; }
-
-@media (max-width: 768px) {
-  .footer-image {
-    height: auto;
-    width: 100%; } }
+  @media (max-width: 768px) {
+    .footer-image {
+      height: auto;
+      width: 100%; } }
