@@ -3,8 +3,8 @@ Domain functions for users
 """
 from google.appengine.api import users
 
+import settings
 from app.models.user import User
-from settings import APPROVAL_ADMINS, FINANCE_ADMINS
 
 
 def check_and_return_user():
@@ -22,8 +22,8 @@ def check_and_return_user():
         if ndb_user:
             in_datastore = True
 
-            is_approval_admin = ndb_user.email in APPROVAL_ADMINS
-            is_finance_admin = ndb_user.email in FINANCE_ADMINS
+            is_approval_admin = settings.is_approval_admin(ndb_user.email)
+            is_finance_admin = settings.is_finance_admin(ndb_user.email)
 
     return user, ndb_user, in_datastore, is_approval_admin, is_finance_admin
 

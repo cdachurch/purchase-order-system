@@ -28,5 +28,16 @@ FINANCE_ADMINS = [
     "test@example.com"
 ]
 
+
+def is_approval_admin(email):
+    """ Email addresses that can approve purchase orders """
+    return email in APPROVAL_ADMINS
+
+
+def is_finance_admin(email):
+    """ Email addresses that can do finance related tasks to POs (cancel them, mainly) """
+    return email in FINANCE_ADMINS
+
+
 POS_FOR_PURCHASER_MEMCACHE_KEY = 'all-pos-for-{}'
 ALL_POS_ORDERED_MEMCACHE_KEY = 'all-pos-for-order-{}'
