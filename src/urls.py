@@ -13,15 +13,18 @@ ROUTES = [
     Route(r'/api/v1/purchases/get/', handler='app.views.api.v1.purchases.PurchaseGetApi'),
     Route(r'/api/v1/purchase/invoice/<po_id:.{12}>/', handler='app.views.api.v1.purchases.PurchaseInvoiceApi'),
 
+    RedirectRoute(r'/superadmin/', handler='app.views.superadmin.IndexView', strict_slash=True,
+                  name='superadmin_home'),
+
     RedirectRoute(r'/purchase/', handler='app.views.purchase.PurchaseListView',
-        strict_slash=True, name='list_purchases'),
+                  strict_slash=True, name='list_purchases'),
     RedirectRoute(r'/purchase/create/', handler='app.views.purchase.PurchaseCreateView',
-        strict_slash=True, name='create_purchase'),
+                  strict_slash=True, name='create_purchase'),
     RedirectRoute(r'/purchase/<po_id:.{12}>/', handler='app.views.purchase.PurchaseView',
-        strict_slash=True, name='view_purchase'),
+                  strict_slash=True, name='view_purchase'),
 
     RedirectRoute('/user/new/', handler='app.views.user.NewUserView',
-        strict_slash=True, name='new_user'),
+                  strict_slash=True, name='new_user'),
 
     Route(r'/', handler='app.views.main.MainView', name='index'),
 ]
