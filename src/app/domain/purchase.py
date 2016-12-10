@@ -167,7 +167,7 @@ def send_admin_email_for_new_po(po_id):
     if ENVIRONMENT == "DEMO":
         subject += " on %s" % ENVIRONMENT
 
-    email_template = """
+    email_template = u"""
         <p>Hello,</p>
         <p>{real_name} has made a purchase order request for the following:</p>
         <ul>
