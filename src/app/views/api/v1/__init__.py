@@ -32,7 +32,7 @@ class API_CONSTANTS(object):
     PO_ID = "poId"
 
     ACCEPTED_SUBJECT = "Your purchase order was approved"
-    ACCEPTED_EMAIL_HTML = """
+    ACCEPTED_EMAIL_HTML = u"""
         <h2>Purchase order approved!</h2>
 
         <p>Your purchase order number is #{ppoid}. Here's what this purchase order covers:</p>
@@ -47,7 +47,7 @@ class API_CONSTANTS(object):
     """
 
     DENIED_SUBJECT = "Your purchase order was denied"
-    DENIED_EMAIL_HTML = """
+    DENIED_EMAIL_HTML = u"""
         <h2>Purchase order #{ppoid} denied!</h2>
 
         <p>Your purchase order #{ppoid} has been denied. Here's what was on it:</p>
