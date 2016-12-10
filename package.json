@@ -21,7 +21,8 @@
     "build:prod": "npm run clean && cp -r src build && export NODE_ENV=production && npm run build-js:prod && npm run build-css:prod",
     "clean": "rm -rf build",
     "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml",
-    "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml"
+    "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml",
+    "start": "dev_appserver.py src/app.yaml --port=8079 --admin_port=9079 --storage_path=./data/"
   },
   "repository": {
     "type": "git",
