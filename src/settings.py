@@ -6,9 +6,9 @@ import os
 STATIC_VERSION_NUMBER = 1
 
 ENVIRONMENT = "PROD"
-SERVER_ADDRESS = "http://po.cdac.ca/"
+SERVER_ADDRESS = "https://po.cdac.ca/"
 if os.environ['APPLICATION_ID'].find("cdac-demo-purchaseorder") >= 0:
-    SERVER_ADDRESS = "http://cdac-demo-purchaseorder.appspot.com/"
+    SERVER_ADDRESS = "https://cdac-demo-purchaseorder.appspot.com/"
     ENVIRONMENT = "DEMO"
 if 'SERVER_SOFTWARE' in os.environ and os.environ['SERVER_SOFTWARE'].startswith('Development'):
     SERVER_ADDRESS = "http://localhost:8080/"
