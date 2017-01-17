@@ -6,7 +6,7 @@ from webapp2 import WSGIApplication
 from urls import ROUTES
 
 from app.views.filters import format_currency, pad_zeros
-from app.views.filters.vurl import do_vurl
+
 
 TEMPLATE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                             'templates')
@@ -15,8 +15,7 @@ CONFIG = {
     'webapp2_extras.jinja2': {
         'filters': {
             'currency': format_currency,
-            'vurl': do_vurl,
-            'pad': pad_zeros
+            'pad': pad_zeros,
         },
         'template_path': TEMPLATE_DIR
     }
