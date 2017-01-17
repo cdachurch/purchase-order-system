@@ -14,14 +14,8 @@
   };
 
   $(function () {
-    var poEndpoint = '';
-    if (templateData.userIsAdmin) {
-      poEndpoint = '/api/v1/purchases/get/';
-    } else if (templateData.user && templateData.userEmail) {
-      poEndpoint = '/api/v1/purchases/get/?email=' + templateData.userEmail;
-    }
     $("#poTable").DataTable({
-      "ajax": poEndpoint,
+      "ajax": '/api/v1/purchases/get/?email=' + templateData.userEmail,
       "columns": [
         {
           data: "pretty_po_id",

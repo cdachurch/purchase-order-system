@@ -8,6 +8,8 @@ from app.domain.purchase import approve_purchase_order, cancel_purchase_order, c
                                 get_purchase_orders_by_purchaser
 from app.domain.user import check_and_return_user
 
+import settings
+
 
 class CreateInterimPurchaseApi(BaseApiMixin):
     """
@@ -37,10 +39,10 @@ class PurchaseGetApi(BaseApiMixin):
             po_entity_dict = get_purchase_order_to_dict(po_id=po_id)
             return self.return_data_with_code(200, po_entity_dict)
         else:
-            if email:
-                po_entities = get_purchase_orders_by_purchaser(email)
-            else:
+            if email in settings.CAN_SEE_ALL_POS:
                 po_entities = get_all_purchase_orders(order_direction="DESC")
+            else:
+                po_entities = get_purchase_orders_by_purchaser(email)
             return_dict = {
                 "data": [po_entity.to_dict() for po_entity in po_entities]
             }

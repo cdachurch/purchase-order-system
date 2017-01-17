@@ -28,6 +28,11 @@ FINANCE_ADMINS = [
     "test@example.com"
 ]
 
+CAN_SEE_ALL_POS = APPROVAL_ADMINS + FINANCE_ADMINS + [
+    "jheindle",
+    "rhoult",
+    "rsmith",
+]
 
 def is_approval_admin(email):
     """ Email addresses that can approve purchase orders """
