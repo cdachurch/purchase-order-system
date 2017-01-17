@@ -41,7 +41,7 @@
         {% if user %}
             <p class="navbar-text navbar-right">Logged in as: {% if user.name %}{{ user.name }}{% else %}{{ name }}{% endif %} (<a href="{{ logout }}" class="navbar-link">logout</a>)</p>
         {% else %}
-        <p class="navbar-text navbar-right"><a href="{{ login }}" class="navbar-link">Log in</a></li>
+        <p class="navbar-text navbar-right"><a href="{{ login }}" class="navbar-link">Log in</a></p>
         {% endif %}
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
@@ -56,7 +56,7 @@
     {% block content %}{% endblock %}
     <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
         <div class="container-fluid">
-            <p class="navbar-text">&copy; 2016 <img src="/static/img/cdactagwidetransparent.png" class="footer-image" /></p>
+            <p class="navbar-text">&copy; 2017 <img src="/static/img/cdactagwidetransparent.png" class="footer-image" /></p>
         </div>
     </nav>
     </div>
