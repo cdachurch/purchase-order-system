@@ -7,4 +7,3 @@ coverage-report/*
 node_modules
 build
 data/
-.well-known/acme-challenge/*
