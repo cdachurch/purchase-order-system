@@ -39,7 +39,7 @@ class PurchaseGetApi(BaseApiMixin):
             po_entity_dict = get_purchase_order_to_dict(po_id=po_id)
             return self.return_data_with_code(200, po_entity_dict)
         else:
-            if email in settings.CAN_SEE_ALL_POS:
+            if not email or email in settings.CAN_SEE_ALL_POS:
                 po_entities = get_all_purchase_orders(order_direction="DESC")
             else:
                 po_entities = get_purchase_orders_by_purchaser(email)
