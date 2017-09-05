@@ -30,6 +30,18 @@
       } else {
         $.prop($(this)[0], "checked", false);
       }
-    })
-  });
+    });
+
+    var submitBtn = document.querySelector('#create-form-submit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function (e) {
+          e.target.form.submit();
+          e.target.disabled = true;
+          setTimeout(function () {
+            e.target.disabled = false;
+          }, 10000);
+        }
+      );
+    }
+  }) // End of $(function () {
 })(window.jQuery);
