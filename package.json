@@ -21,8 +21,8 @@
     "build-css:prod": "node-sass --include-path scss build/static/scss/global.scss build/static/css/global.css",
     "build:prod": "npm run clean && cp -r src build && export NODE_ENV=production && npm run build-js:prod && npm run build-css:prod",
     "clean": "rm -rf build",
-    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml -q --promote",
-    "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml -q --promote",
+    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
+    "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
     "start": "dev_appserver.py src/app.yaml --port=8079 --admin_port=9079 --storage_path=./data/"
   },
   "repository": {

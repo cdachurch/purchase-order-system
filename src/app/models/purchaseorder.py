@@ -20,6 +20,7 @@ class PurchaseOrder(BaseModel):
     price = ndb.FloatProperty()
     approved_by = ndb.StringProperty()
     account_code = ndb.StringProperty()
+    account_code_str = ndb.ComputedProperty(lambda self: str(self.account_code))
     # these default to False (perfect!)
     is_approved = ndb.BooleanProperty()
     is_denied = ndb.BooleanProperty()

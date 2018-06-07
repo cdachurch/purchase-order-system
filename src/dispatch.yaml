@@ -1,0 +1,4 @@
+
+dispatch:
+  - url: "*/goapi/v1/*"
+    service: go
