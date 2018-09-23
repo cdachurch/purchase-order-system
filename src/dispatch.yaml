@@ -1,4 +1,4 @@
 
 dispatch:
-  - url: "*/goapi/v1/*"
+  - url: "*/goapi/*"
     service: go
