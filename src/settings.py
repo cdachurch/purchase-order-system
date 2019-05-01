@@ -15,9 +15,8 @@ if 'SERVER_SOFTWARE' in os.environ and os.environ['SERVER_SOFTWARE'].startswith(
     ENVIRONMENT = "LOCAL"
 
 APPROVAL_ADMINS = [
-    "gdholtslander",
+    # "gdholtslander",
     "gholtslander",
-    # "lkrieg",
     "smyhre",
     "test@example.com"
 ]
@@ -33,6 +32,7 @@ CAN_SEE_ALL_POS = APPROVAL_ADMINS + FINANCE_ADMINS + [
     "rhoult",
     "rsmith",
 ]
+
 
 def is_approval_admin(email):
     """ Email addresses that can approve purchase orders """
