@@ -18,6 +18,9 @@ ROUTES = [
 
     RedirectRoute(r'/purchase/', handler='app.views.purchase.PurchaseListView',
                   strict_slash=True, name='list_purchases'),
+    # To eventually replace /purchase/
+    RedirectRoute(r'/sspurchase/', handler='app.views.purchase.ServerSidePurchaseListView',
+                  strict_slash=True, name='list_purchases'),
     RedirectRoute(r'/purchase/create/', handler='app.views.purchase.PurchaseCreateView',
                   strict_slash=True, name='create_purchase'),
     RedirectRoute(r'/purchase/<po_id:.{12}>/', handler='app.views.purchase.PurchaseView',
