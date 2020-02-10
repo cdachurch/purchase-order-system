@@ -50,7 +50,7 @@ class PurchaseListView(TemplatedView):
         self.render_response("purchaseorders.html", **context)
 
 
-class ServerSidePurchaseListView(TemplatedView):
+class AllPurchaseListView(TemplatedView):
     def get(self):
         bread_crumbs = [
             ("Home", self.uri_for('index')),
@@ -65,7 +65,7 @@ class ServerSidePurchaseListView(TemplatedView):
         # Add the login/out links and the user info
         context.update(get_log_in_out_links_and_user())
 
-        self.render_response("serversidepurchaseorders.html", **context)
+        self.render_response("allpurchaseorders.html", **context)
 
 
 class PurchaseCreateView(TemplatedView):
