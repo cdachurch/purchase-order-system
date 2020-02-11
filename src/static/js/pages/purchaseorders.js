@@ -17,7 +17,7 @@
 
   $(function () {
     $("#poTable").DataTable({
-      ajax: "/goapi/v1/po/list/?length=250&email=" + templateData.userEmail,
+      ajax: "/goapi/v1/po/list/?length=500&email=" + templateData.userEmail,
       columns: [
         {
           data: "pretty_po_id",
