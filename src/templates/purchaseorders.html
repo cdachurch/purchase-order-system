@@ -3,9 +3,12 @@
 {% block list_active %} class="active"{% endblock %}
 
 {% block content %}
-    <h2>Purchase orders <small>Click on the icons to view details</small></h2>
-    <p>Legend: <span class="glyphicon glyphicon-ok text-success"></span> - Approved, <span class="glyphicon glyphicon-remove text-danger"></span> - Denied, <span class="glyphicon glyphicon-bullhorn"></span> - Pending, <span class="glyphicon glyphicon-ban-circle"></span> - Cancelled</p>
-    <div class="table-responsive">
+<h2>Purchase orders <small>Click on the icons to view details</small></h2>
+<p>Legend: <span class="glyphicon glyphicon-ok text-success"></span> - Approved, <span
+        class="glyphicon glyphicon-remove text-danger"></span> - Denied, <span
+        class="glyphicon glyphicon-bullhorn"></span> - Pending, <span class="glyphicon glyphicon-ban-circle"></span> -
+    Cancelled</p>
+<div class="table-responsive">
     <table class="table" id="poTable">
         <thead>
             <tr>
@@ -23,14 +26,14 @@
         <tbody>
         </tbody>
     </table>
-    </div>
-    {% if user_is_admin or user_is_finance_admin %}
-    <p>
-        Didn't find what you were looking for? This page now only loads the 500 most recent purchase orders.
-        Try checking out <a href="/purchase/all/">this page which now contains all purchase orders</a>.
-    </p>
-    {% endif %}
-    <p>Want to create a purchase? <a href="/purchase/create/">Click here!</a></p>
+</div>
+{% if user_is_admin or user_is_finance_admin %}
+<p>
+    Didn't find what you were looking for? This page now only loads the 250 most recent purchase orders.
+    Try checking out <a href="/purchase/all/">this page which now contains all purchase orders</a>.
+</p>
+{% endif %}
+<p>Want to create a purchase? <a href="/purchase/create/">Click here!</a></p>
 {% endblock %}
 
 {% block body_scripts %}
@@ -39,7 +42,7 @@
         userIsAdmin: {% if user_is_admin or user_is_finance_admin %}true{% else %}false{% endif %},
         user: {% if user %}true{% else %}false{% endif %},
         userEmail: '{{ user.email }}',
-        userIsFinanceAdmin: {% if user_is_finance_admin %}true{% else %}false{% endif %}
+        userIsFinanceAdmin: {% if user_is_finance_admin %} true{% else %} false{% endif %}
     };
 </script>
 <script type="text/javascript" src="/static/js/pages/purchaseorders.js"></script>
