@@ -27,11 +27,7 @@ FINANCE_ADMINS = [
     "test@example.com"
 ]
 
-CAN_SEE_ALL_POS = APPROVAL_ADMINS + FINANCE_ADMINS + [
-    "jheindle",
-    "rhoult",
-    "rsmith",
-]
+CAN_SEE_ALL_POS = APPROVAL_ADMINS + FINANCE_ADMINS
 
 
 def is_approval_admin(email):
