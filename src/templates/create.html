@@ -5,56 +5,52 @@
 {% block create_active %} class="active"{% endblock %}
 
 {% block content %}
-    {% if not user %}
-        <p>Please <a href="{{ login }}">login</a> to access this functionality</p>
+    <h2>Create a new purchase order <small id="ppoid"></small></h2>
+    {% if success %}
+        <p>Great, your purchase order has been created! You should hear back soon (by email) whether your order has been accepted or denied.</p>
     {% else %}
-        <h2>Create a new purchase order <small id="ppoid"></small></h2>
-        {% if success %}
-            <p>Great, your purchase order has been created! You should hear back soon (by email) whether your order has been accepted or denied.</p>
-        {% else %}
-            <label>
-                <input type="checkbox" name="get-ppoid-early" id="get-ppoid-early"> Are you purchasing from a "Sisco" style system?
-            </label>
-            {% if errors %}
-                {% for error in errors %}
-                    <p class="bg-danger">{{ error }}</p>
-                {% endfor %}
-            {% endif %}
-            <p class="text-muted">A <span class="text-danger">*</span> indicates a Required field.</p>
-            <form method="POST" action="/purchase/create/">
-                <input type="hidden" id="email" name="email" value="{{ user.email }}" readonly class="form-control" />
-                <div class="form-group">
-                    <label for="supplier"><span class="text-danger">*</span> Name of the supplier:</label>
-                    <input type="text" id="supplier" name="supplier" class="form-control" value="{{ form.supplier }}" required/>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="multiline-po" id="is-multiline-po">Are you purchasing multiple items?
-                    </label>
-                </div>
-                <div class="form-group" id="singleline">
-                    <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
-                    <input type="text" id="product" name="product" class="form-control" value="{{ form.product }}" />
-                </div>
-                <div class="bg-danger hidden" id="text-too-long">
-                    Your product description is <span id="characters"></span> long! It must be 500 characters or less.
-                </div>
-                <div class="form-group hidden" id="multiline">
-                    <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
-                    <textarea class="form-control" id="multiline-product" maxlength="499" rows="3" name="multiline-product" placeholder="Enter multiple lines for your purchase order here"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="price"><span class="text-danger">*</span> Price (without $):</label>
-                    <input type="text" id="price" name="price" min="0" class="form-control" value="{{ form.price }}" required/>
-                </div>
-                <input type="hidden" id="_poid" name="_poid">
-                <div class="form-group">
-                    <label for="accountcode">Account code/description:</label>
-                    <input type="text" id="accountcode" name="accountcode" class="form-control" value="{{ form.account_code }}" />
-                </div>
-                <input type="submit" class="btn btn-primary" id="create-form-submit" />
-            </form>
+        <label>
+            <input type="checkbox" name="get-ppoid-early" id="get-ppoid-early"> Are you purchasing from a "Sisco" style system?
+        </label>
+        {% if errors %}
+            {% for error in errors %}
+                <p class="bg-danger">{{ error }}</p>
+            {% endfor %}
         {% endif %}
+        <p class="text-muted">A <span class="text-danger">*</span> indicates a Required field.</p>
+        <form method="POST" action="/purchase/create/">
+            <input type="hidden" id="email" name="email" value="{{ user.email }}" readonly class="form-control" />
+            <div class="form-group">
+                <label for="supplier"><span class="text-danger">*</span> Name of the supplier:</label>
+                <input type="text" id="supplier" name="supplier" class="form-control" value="{{ form.supplier }}" required/>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="multiline-po" id="is-multiline-po">Are you purchasing multiple items?
+                </label>
+            </div>
+            <div class="form-group" id="singleline">
+                <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
+                <input type="text" id="product" name="product" class="form-control" value="{{ form.product }}" />
+            </div>
+            <div class="bg-danger hidden" id="text-too-long">
+                Your product description is <span id="characters"></span> long! It must be 500 characters or less.
+            </div>
+            <div class="form-group hidden" id="multiline">
+                <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
+                <textarea class="form-control" id="multiline-product" maxlength="499" rows="3" name="multiline-product" placeholder="Enter multiple lines for your purchase order here"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="price"><span class="text-danger">*</span> Price (without $):</label>
+                <input type="text" id="price" name="price" min="0" class="form-control" value="{{ form.price }}" required/>
+            </div>
+            <input type="hidden" id="_poid" name="_poid">
+            <div class="form-group">
+                <label for="accountcode">Account code/description:</label>
+                <input type="text" id="accountcode" name="accountcode" class="form-control" value="{{ form.account_code }}" />
+            </div>
+            <input type="submit" class="btn btn-primary" id="create-form-submit" />
+        </form>
     {% endif %}
 {% endblock %}
 

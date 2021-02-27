@@ -46,7 +46,11 @@
 
     <div class="container">
     {% block heading %}{% endblock %}
-    {% block content %}{% endblock %}
+    {% if not user %}
+        <p>Please <a href="{{ login }}">login</a> to use this system.</p>
+    {% else %}
+      {% block content %}{% endblock %}
+    {% endif %}
     <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
         <div class="container-fluid">
             <p class="navbar-text">&copy; {{ '' | copyright }} <img src="/static/img/footer_image.png" class="footer-image" /></p>
