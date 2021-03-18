@@ -1,17 +1,5 @@
 (function ($) {
   $(function () {
-    $("#is-multiline-po").on("click", function () {
-      var isChecked = $.prop($(this)[0], "checked");
-      if (isChecked) {
-        $("#singleline").addClass("hidden");
-        $("#multiline").removeClass("hidden");
-      }
-      else {
-        $("#multiline").addClass("hidden");
-        $("#singleline").removeClass("hidden");
-      }
-    });
-
     $("#get-ppoid-early").on("click", function () {
       var isChecked = $.prop($(this)[0], "checked");
       if (isChecked === true && confirm("Are you sure? This will 'reserve' a poid, this cannot be undone")) {
@@ -35,12 +23,11 @@
     var submitBtn = document.querySelector('#create-form-submit');
     if (submitBtn) {
       submitBtn.addEventListener('click', function (e) {
-          e.target.form.submit();
           e.target.disabled = true;
           setTimeout(function () {
             e.target.disabled = false;
-          }, 10000);
-        }
+          }, 1500);
+        },
       );
     }
   }) // End of $(function () {
