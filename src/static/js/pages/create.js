@@ -2,7 +2,7 @@
   $(function () {
     $("#get-ppoid-early").on("click", function () {
       var isChecked = $.prop($(this)[0], "checked");
-      if (isChecked === true && confirm("Are you sure? This will reserve a PO number - this cannot be undone")) {
+      if (isChecked === true && confirm("Are you sure?\n\nThis will reserve a PO number - this cannot be undone")) {
         $.ajax({
           type: "POST",
           url: "/api/v1/purchase/create/interim/"
