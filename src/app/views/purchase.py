@@ -2,7 +2,7 @@
 Views for purchase orders
 """
 from app.domain.purchase import create_purchase_order, get_purchase_order_to_dict, \
-                                send_admin_email_for_new_po
+                                send_admin_email_for_new_po, check_and_return_user
 from app.views import TemplatedView
 from app.workflow.user import get_log_in_out_links_and_user
 
@@ -86,6 +86,10 @@ class PurchaseCreateView(TemplatedView):
         self.render_response("create.html", **context)
 
     def post(self):
+        _, user, _, _, _ = check_and_return_user()
+        if user is None:
+            return self.redirect('/login')
+
         context = {}
 
         post_body = self.request.POST
