@@ -96,15 +96,11 @@ class PurchaseCreateView(TemplatedView):
 
         po_id = None
         try:
-            is_multiline = post_body.get("multiline-po")
             purchaser = post_body["email"]
             supplier = post_body["supplier"]
-            if not is_multiline:
-                product = post_body["product"]
-            else:
-                product = post_body["multiline-product"]
-                product = product.replace("\r\n", "<br />")
-                product = product.replace("\n", "<br />")
+            product = post_body["product"]
+            product = product.replace("\r\n", "<br />")
+            product = product.replace("\n", "<br />")
             price = post_body["price"]
             _po_id = post_body.get("_poid")
             # Strip any $ or , from the price
@@ -113,14 +109,13 @@ class PurchaseCreateView(TemplatedView):
 
             po_id = create_purchase_order(purchaser, supplier, product, price, po_id=_po_id, account_code=account_code)
         except (ValueError, KeyError) as ve:
-            context["form"] = {
-                "purchaser": purchaser,
-                "supplier": supplier,
-                "product": product,
-                "price": price,
-                "account_code": account_code
+            context['form'] = {
+                'supplier': post_body.get('supplier'),
+                'product': post_body.get('product'),
+                'price': post_body.get('price'),
+                'account_code': post_body.get('accountcode')
             }
-            context["errors"] = [ve.message]
+            context['errors'] = [ve.message]
 
         if po_id:
             context["success"] = True

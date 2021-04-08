@@ -26,7 +26,7 @@
             </div>
             <div class="form-group" id="multiline">
                 <label for="product"><span class="text-danger">*</span> Product(s) being purchased:</label>
-                <textarea class="form-control" id="multiline-product" maxlength="499" rows="3" name="multiline-product" placeholder="Press enter after each item to add multiple products"></textarea>
+                <textarea class="form-control" id="product" maxlength="499" rows="3" name="product" placeholder="Press enter after each item to add multiple products">{{ form.product }}</textarea>
             </div>
             <div class="bg-danger hidden" id="text-too-long">
                 Your product description is <span id="characters"></span> long! It must be 500 characters or less.
