@@ -17,7 +17,7 @@ if 'SERVER_SOFTWARE' in os.environ and os.environ['SERVER_SOFTWARE'].startswith(
 APPROVAL_ADMINS = [
     # "gholtslander",
     # "gdholtslander",
-    "pmorgun",
+    "agagne",
     "smyhre",
     # Only for local development
     "test@example.com"
