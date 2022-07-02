@@ -20,15 +20,15 @@
       }
     });
 
-    var submitBtn = document.querySelector('#create-form-submit');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', function (e) {
-          e.target.disabled = true;
-          setTimeout(function () {
-            e.target.disabled = false;
-          }, 1500);
-        },
-      );
-    }
+    // var submitBtn = document.querySelector('#create-form-submit');
+    // if (submitBtn) {
+    //   submitBtn.addEventListener('click', function (e) {
+    //       e.target.disabled = true;
+    //       setTimeout(function () {
+    //         e.target.disabled = false;
+    //       }, 1500);
+    //     },
+    //   );
+    // }
   }) // End of $(function () {
 })(window.jQuery);
