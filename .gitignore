@@ -7,3 +7,6 @@ coverage-report/*
 node_modules
 build
 data/
+
+__pycache__/
+.venv
