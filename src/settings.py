@@ -32,12 +32,21 @@ if "SERVER_SOFTWARE" in os.environ and os.environ["SERVER_SOFTWARE"].startswith(
     )
 
 APPROVAL_ADMINS = [
-    # "gdholtslander",
+    "gdholtslander",
     "gholtslander",
     "smyhre",
+    "gdholtslander@cdac.ca",
+    "gholtslander@cdac.ca",
+    "smyhre@cdac.ca",
 ]
 
-FINANCE_ADMINS = ["dwiebe", "gdholtslander", "test@example.com"]
+FINANCE_ADMINS = [
+    "dwiebe",
+    "gdholtslander",
+    "dwiebe@cdac.ca",
+    "gdholtslander@cdac.ca",
+    "test@example.com",
+]
 
 CAN_SEE_ALL_POS = (
     APPROVAL_ADMINS

@@ -7,7 +7,9 @@ from google.cloud import ndb
 import requests
 
 import google_auth_oauthlib.flow
+from app.domain.user import create_user
 from app.models.user import User
+
 
 import settings
 
@@ -71,11 +73,8 @@ def oauth_callback():
         headers={"Authorization": "Bearer " + credentials.token},
     ).json()
 
-    email = user_info["email"]
-
     # cdac.ca emails only
-    split_email = email.split("@")
-    if split_email[1] != "cdac.ca":
+    if user_info.get("hd") != "cdac.ca":
         return redirect(url_for("index"))
 
     session["credentials"] = {
@@ -87,7 +86,7 @@ def oauth_callback():
         "scopes": credentials.scopes,
     }
     # https://flask.palletsprojects.com/en/3.0.x/quickstart/#sessions
-    session["email"] = email
+    session["email"] = user_info["email"]
     session["user_id"] = user_info["sub"]
     session["name"] = user_info["given_name"]
     # "{'sub': '108580537957365284310', 'name': 'Graham Holtslander', 'given_name': 'Graham',
@@ -96,9 +95,9 @@ def oauth_callback():
     # 'email': 'gdholtslander@cdac.ca', 'email_verified': True, 'locale': 'en', 'hd': 'cdac.ca'}
 
     with client.context():
-        user = User.get_by_email(split_email[0])
+        user = User.get_by_user_id(user_info["sub"])
         if user is None:
-            return redirect(url_for("user.new_user"))
+            user = create_user(session["name"], session["email"], session["user_id"])
 
     return redirect(url_for("index"))
 

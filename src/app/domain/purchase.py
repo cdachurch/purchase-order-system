@@ -28,11 +28,11 @@ def approve_purchase_order(po_entity, approver):
         raise ValueError("The purchase order entity must be passed to this function")
     if not approver:
         raise ValueError("A purchase order must be approved by someone")
-    po_entity.approved_by = approver.name
+    po_entity.approved_by = approver
     po_entity.is_approved = True
     logging.info(
         "%s approved po# %s (%s)",
-        approver.name,
+        approver,
         po_entity.po_id,
         po_entity.pretty_po_id,
     )

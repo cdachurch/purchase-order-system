@@ -35,8 +35,8 @@ def accept_po(po_id):
     with client.context():
         po_entity = get_purchase_order_entity(po_id)
         if po_entity:
-            _, approver, _, _, _ = check_and_return_user()
-            approve_purchase_order(po_entity, approver)
+            approver, _, _ = check_and_return_user()
+            approve_purchase_order(po_entity, approver["name"])
             send_email(po_entity.purchaser, API_CONSTANTS.ACCEPTED, po_entity)
             return {"data": {}}
 

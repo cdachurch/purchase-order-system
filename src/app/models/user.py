@@ -10,6 +10,12 @@ class User(BaseModel):
     """
     User model. user_id mirrors the field provided when a user signs in with the
     Users API provided with App Engine.
+
+    N.B. This model is kind of cruft now, but I don't want to delete it yet.
+    It isn't really used for anything (certainly not anymore), which is perhaps too bad.
+    Perhaps the last thing it was useful for was a way to hang onto an email address
+    that didn't include "@cdac.ca"...  If we had a "superadmin" area we may find it useful to
+    have the list of all users who have signed in and when they were created and such.
     """
 
     user_id = ndb.StringProperty()

@@ -14,22 +14,14 @@ def check_and_return_user():
     Returns a Users.user object, an ndb_user, and whether or not they exist in datastore
     """
     user = get_current_user()
-    ndb_user = None
-    in_datastore = False
     is_finance_admin = False
     is_approval_admin = False
-    print(user)
 
     if user:
-        with client.context():
-            ndb_user = User.get_by_email(user["email"])
-            if ndb_user:
-                in_datastore = True
+        is_approval_admin = settings.is_approval_admin(user["email"])
+        is_finance_admin = settings.is_finance_admin(user["email"])
 
-                is_approval_admin = settings.is_approval_admin(ndb_user.email)
-                is_finance_admin = settings.is_finance_admin(ndb_user.email)
-
-    return user, ndb_user, in_datastore, is_approval_admin, is_finance_admin
+    return user, is_approval_admin, is_finance_admin
 
 
 def create_user(name, email, user_id, key=None):
