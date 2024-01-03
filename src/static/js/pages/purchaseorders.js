@@ -4,7 +4,7 @@
     var poId = element.value;
     $.ajax({
       type: "GET",
-      url: "/api/v1/purchase/invoice/" + poId + "/"
+      url: "/api/v1/purchase/invoice/" + poId + "/",
     })
       .done(function () {
         // pass
@@ -23,7 +23,7 @@
           data: "pretty_po_id",
           render: function (data, type) {
             return type === "display" ? pad(data, 4) : data;
-          }
+          },
         },
         { data: "purchaser" },
         { data: "supplier" },
@@ -35,11 +35,11 @@
             return type === "display"
               ? "$" + data.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")
               : data;
-          }
+          },
         },
         {
           data: "account_code",
-          defaultContent: "None"
+          defaultContent: "None",
         },
         {
           data: "is_invoiced",
@@ -55,7 +55,7 @@
               return checkbox;
             }
             return data;
-          }
+          },
         },
         { data: "created_date" },
         {
@@ -80,15 +80,15 @@
               return display;
             }
             return data;
-          }
-        }
+          },
+        },
       ],
       createdRow: function (row, data) {
         if (data["is_cancelled"] === true) {
           $(row).addClass("bg-cancelled");
         }
       },
-      sorting: [[0, "desc"]]
+      sorting: [[0, "desc"]],
     });
   });
 })(window.jQuery, window.templateData, window.pad);
