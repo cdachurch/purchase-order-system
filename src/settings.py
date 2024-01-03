@@ -3,8 +3,14 @@ settings.py Documentation
 """
 import os
 
-STATIC_VERSION_NUMBER = 1
+# CLIENT_CONFIG is the contents of the file you can download from "Client ID for Web application" in
+# the Google Cloud console
+from settings_secret import CLIENT_CONFIG, SESSION_SECRET
 
+# TODO: Update to prod client id eventually
+OAUTH_CLIENT_ID = (
+    "493242818739-15dviusnrma4om6bsk4ar48easltjdo2.apps.googleusercontent.com"
+)
 ENVIRONMENT = "PROD"
 SERVER_ADDRESS = "https://po.cdac.ca/"
 if (
@@ -13,17 +19,22 @@ if (
 ):
     SERVER_ADDRESS = "https://cdac-demo-purchaseorder.appspot.com/"
     ENVIRONMENT = "DEMO"
+    OAUTH_CLIENT_ID = (
+        "493242818739-15dviusnrma4om6bsk4ar48easltjdo2.apps.googleusercontent.com"
+    )
 if "SERVER_SOFTWARE" in os.environ and os.environ["SERVER_SOFTWARE"].startswith(
     "Development"
 ):
-    SERVER_ADDRESS = "http://localhost:8080/"
+    SERVER_ADDRESS = "http://localhost:5000/"
     ENVIRONMENT = "LOCAL"
+    OAUTH_CLIENT_ID = (
+        "493242818739-15dviusnrma4om6bsk4ar48easltjdo2.apps.googleusercontent.com"
+    )
 
 APPROVAL_ADMINS = [
     # "gdholtslander",
     "gholtslander",
     "smyhre",
-    "test@example.com",
 ]
 
 FINANCE_ADMINS = ["dwiebe", "gdholtslander", "test@example.com"]

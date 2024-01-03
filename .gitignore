@@ -10,3 +10,5 @@ data/
 
 __pycache__/
 .venv
+settings_secret.py
+cdac-demo-purchaseorder-e1746cf308b9.json
