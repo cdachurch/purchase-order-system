@@ -1,10 +1,10 @@
 """
 Domain code for purchase orders
+
+These functions should be called from within an ndb client context, they won't create their own
 """
 import logging
 import uuid
-
-from google.cloud import ndb
 
 # from google.appengine.api import memcache
 
@@ -18,8 +18,6 @@ from settings import (
     POS_FOR_PURCHASER_MEMCACHE_KEY,
     ALL_POS_ORDERED_MEMCACHE_KEY,
 )
-
-client = ndb.Client()
 
 
 def approve_purchase_order(po_entity, approver):
@@ -36,8 +34,8 @@ def approve_purchase_order(po_entity, approver):
         po_entity.po_id,
         po_entity.pretty_po_id,
     )
-    with client.context():
-        po_entity.put()
+
+    po_entity.put()
     return po_entity
 
 
@@ -50,8 +48,7 @@ def cancel_purchase_order(po_entity):
     po_entity.is_approved = False
     po_entity.is_denied = False
     logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
-    with client.context():
-        po_entity.put()
+    po_entity.put()
 
 
 def create_purchase_order(
@@ -70,25 +67,24 @@ def create_purchase_order(
         # generate a unique string
         generated_po_id = str(uuid.uuid4()).split("-")[-1]
 
-    with client.context():
-        if po_id:
-            new_po_key = PurchaseOrder.build_key(po_id)
-            new_po = new_po_key.get()
-            logging.info(new_po)
-        else:
-            new_po = PurchaseOrder(key=PurchaseOrder.build_key(generated_po_id))
-            new_po.po_id = generated_po_id
-            new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
-            po_id = generated_po_id
+    if po_id:
+        new_po_key = PurchaseOrder.build_key(po_id)
+        new_po = new_po_key.get()
+        logging.info(new_po)
+    else:
+        new_po = PurchaseOrder(key=PurchaseOrder.build_key(generated_po_id))
+        new_po.po_id = generated_po_id
+        new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+        po_id = generated_po_id
 
-        new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
-        new_po.supplier = supplier
-        new_po.product = product
-        if account_code:
-            new_po.account_code = account_code
-        new_po.price = float(price)
+    new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
+    new_po.supplier = supplier
+    new_po.product = product
+    if account_code:
+        new_po.account_code = account_code
+    new_po.price = float(price)
 
-        new_po.put()
+    new_po.put()
 
     return po_id
 
@@ -97,11 +93,10 @@ def create_interim_purchase_order():
     """Creates an interim purchase order, to be finalized later"""
     po_id = str(uuid.uuid4()).split("-")[-1]
 
-    with client.context():
-        new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
-        new_po.po_id = po_id
-        new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
-        new_po.put()
+    new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
+    new_po.po_id = po_id
+    new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+    new_po.put()
 
     return new_po
 
@@ -110,39 +105,30 @@ def deny_purchase_order(po_entity):
     """Mark a purchase order as denied"""
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
-    with client.context():
-        po_entity.is_denied = True
-        logging.info(
-            "po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id
-        )
-        po_entity.put()
+
+    po_entity.is_denied = True
+    logging.info("po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id)
+    po_entity.put()
 
 
 def get_purchase_order_entity(po_id):
     """Get a purchase order entity by id"""
-    po = None
-    with client.context():
-        po_key = PurchaseOrder.build_key(po_id)
-        po = po_key.get()
-    if po:
-        return po
+    po_key = PurchaseOrder.build_key(po_id)
+    return po_key.get()
 
 
 def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
     """
     Takes either a po_id or pretty_po_id to return that purchase order's dictionary representation
     """
-    with client.context():
-        if po_id:
-            purchase_order = PurchaseOrder.build_key(po_id).get()
-            if purchase_order:
-                return purchase_order.to_dict()
-            else:
-                raise ValueError(
-                    "Couldn't find a purchase order with po_id of %s" % po_id
-                )
-        elif po_entity:
-            return po_entity.to_dict()
+    if po_id:
+        purchase_order = PurchaseOrder.build_key(po_id).get()
+        if purchase_order:
+            return purchase_order.to_dict()
+        else:
+            raise ValueError("Couldn't find a purchase order with po_id of %s" % po_id)
+    elif po_entity:
+        return po_entity.to_dict()
 
 
 def get_all_purchase_orders(order_direction=None, limit=None):

@@ -48,12 +48,13 @@ def purchase_view(po_id):
     # Add the login/out links and the user info
     context.update(get_log_in_out_links_and_user())
 
-    try:
-        po_dict = get_purchase_order_to_dict(po_id=po_id)
-    except ValueError:
-        return render_po_template("404.html", **context)
+    with client.context():
+        try:
+            po_dict = get_purchase_order_to_dict(po_id=po_id)
+        except ValueError:
+            return render_po_template("404.html", **context)
 
-    context.update(po_dict)
+        context.update(po_dict)
     context["bread_crumbs"] = bread_crumbs
 
     return render_po_template("purchase.html", **context)
