@@ -4,30 +4,45 @@ Domain code for purchase orders
 import logging
 import uuid
 
-from google.appengine.api import memcache
+from google.cloud import ndb
 
-from app.domain.user import check_and_return_user
+# from google.appengine.api import memcache
+
+from app.domain.user import get_current_user
 from app.models.purchaseorder import PurchaseOrder
 from app.utility.mailer import send_message
-from settings import APPROVAL_ADMINS, ENVIRONMENT, SERVER_ADDRESS, POS_FOR_PURCHASER_MEMCACHE_KEY, \
-    ALL_POS_ORDERED_MEMCACHE_KEY
+from settings import (
+    APPROVAL_ADMINS,
+    ENVIRONMENT,
+    SERVER_ADDRESS,
+    POS_FOR_PURCHASER_MEMCACHE_KEY,
+    ALL_POS_ORDERED_MEMCACHE_KEY,
+)
+
+client = ndb.Client()
 
 
 def approve_purchase_order(po_entity, approver):
-    """ Mark a purchase order as approved """
+    """Mark a purchase order as approved"""
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
     if not approver:
         raise ValueError("A purchase order must be approved by someone")
     po_entity.approved_by = approver.name
     po_entity.is_approved = True
-    logging.info("%s approved po# %s (%s)", approver.name, po_entity.po_id, po_entity.pretty_po_id)
-    po_entity.put()
+    logging.info(
+        "%s approved po# %s (%s)",
+        approver.name,
+        po_entity.po_id,
+        po_entity.pretty_po_id,
+    )
+    with client.context():
+        po_entity.put()
     return po_entity
 
 
 def cancel_purchase_order(po_entity):
-    """ Mark a purchase order as cancelled, clearing the approved or denied status as well """
+    """Mark a purchase order as cancelled, clearing the approved or denied status as well"""
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
 
@@ -35,11 +50,14 @@ def cancel_purchase_order(po_entity):
     po_entity.is_approved = False
     po_entity.is_denied = False
     logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
-    po_entity.put()
+    with client.context():
+        po_entity.put()
 
 
-def create_purchase_order(purchaser, supplier, product, price, po_id=None, account_code=None):
-    """ Creates a purchase order """
+def create_purchase_order(
+    purchaser, supplier, product, price, po_id=None, account_code=None
+):
+    """Creates a purchase order"""
     if not purchaser:
         raise ValueError("purchaser is a required field")
     if not supplier:
@@ -52,53 +70,60 @@ def create_purchase_order(purchaser, supplier, product, price, po_id=None, accou
         # generate a unique string
         generated_po_id = str(uuid.uuid4()).split("-")[-1]
 
-    if po_id:
-        new_po_key = PurchaseOrder.build_key(po_id)
-        new_po = new_po_key.get()
-        logging.info(new_po)
-    else:
-        new_po = PurchaseOrder(key=PurchaseOrder.build_key(generated_po_id))
-        new_po.po_id = generated_po_id
-        new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
-        po_id = generated_po_id
+    with client.context():
+        if po_id:
+            new_po_key = PurchaseOrder.build_key(po_id)
+            new_po = new_po_key.get()
+            logging.info(new_po)
+        else:
+            new_po = PurchaseOrder(key=PurchaseOrder.build_key(generated_po_id))
+            new_po.po_id = generated_po_id
+            new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+            po_id = generated_po_id
 
-    new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
-    new_po.supplier = supplier
-    new_po.product = product
-    if account_code:
-        new_po.account_code = account_code
-    new_po.price = float(price)
+        new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
+        new_po.supplier = supplier
+        new_po.product = product
+        if account_code:
+            new_po.account_code = account_code
+        new_po.price = float(price)
 
-    new_po.put()
+        new_po.put()
 
     return po_id
 
 
 def create_interim_purchase_order():
-    """ Creates an interim purchase order, to be finalized later """
+    """Creates an interim purchase order, to be finalized later"""
     po_id = str(uuid.uuid4()).split("-")[-1]
-    new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
 
-    new_po.po_id = po_id
-    new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
-    new_po.put()
+    with client.context():
+        new_po = PurchaseOrder(key=PurchaseOrder.build_key(po_id))
+        new_po.po_id = po_id
+        new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
+        new_po.put()
 
     return new_po
 
 
 def deny_purchase_order(po_entity):
-    """ Mark a purchase order as denied """
+    """Mark a purchase order as denied"""
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
-    po_entity.is_denied = True
-    logging.info("po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id)
-    po_entity.put()
+    with client.context():
+        po_entity.is_denied = True
+        logging.info(
+            "po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id
+        )
+        po_entity.put()
 
 
 def get_purchase_order_entity(po_id):
-    """ Get a purchase order entity by id """
-    po_key = PurchaseOrder.build_key(po_id)
-    po = po_key.get()
+    """Get a purchase order entity by id"""
+    po = None
+    with client.context():
+        po_key = PurchaseOrder.build_key(po_id)
+        po = po_key.get()
     if po:
         return po
 
@@ -107,46 +132,56 @@ def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
     """
     Takes either a po_id or pretty_po_id to return that purchase order's dictionary representation
     """
-    if po_id:
-        purchase_order = PurchaseOrder.build_key(po_id).get()
-        if purchase_order:
-            return purchase_order.to_dict()
-        else:
-            raise ValueError("Couldn't find a purchase order with po_id of %s" % po_id)
-    elif po_entity:
-        return po_entity.to_dict()
+    with client.context():
+        if po_id:
+            purchase_order = PurchaseOrder.build_key(po_id).get()
+            if purchase_order:
+                return purchase_order.to_dict()
+            else:
+                raise ValueError(
+                    "Couldn't find a purchase order with po_id of %s" % po_id
+                )
+        elif po_entity:
+            return po_entity.to_dict()
 
 
 def get_all_purchase_orders(order_direction=None, limit=None):
-    cached_pos = memcache.get(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction))
+    # cached_pos = memcache.get(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction))
 
-    if cached_pos:
-        logging.info('Returning cached pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
-        return cached_pos
+    # if cached_pos:
+    #     logging.info('Returning cached pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
+    #     return cached_pos
+    # else:
+    if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
+        purchase_orders = (
+            PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id(
+                order_direction, limit=limit
+            )
+        )
     else:
-        if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
-            purchase_orders = PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id(order_direction,
-                                                                                              limit=limit)
-        else:
-            purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
+        purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
 
-        memcache.set(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction), purchase_orders)
-        logging.info('Caching pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
-        return purchase_orders
+    # memcache.set(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction), purchase_orders)
+    logging.info(
+        "Caching pos for {}".format(
+            ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)
+        )
+    )
+    return purchase_orders
 
 
 def get_purchase_orders_by_purchaser(purchaser, limit=None):
     pos_memcache_key = POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser)
 
-    cached_pos = memcache.get(pos_memcache_key)
-    if cached_pos:
-        logging.info('Returning cached pos for {}'.format(pos_memcache_key))
-        return cached_pos
-    else:
-        pos = PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
-        memcache.set(pos_memcache_key, pos)
-        logging.info('Caching pos for {}'.format(pos_memcache_key))
-        return pos
+    # cached_pos = memcache.get(pos_memcache_key)
+    # if cached_pos:
+    #     logging.info('Returning cached pos for {}'.format(pos_memcache_key))
+    #     return cached_pos
+    # else:
+    pos = PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
+    # memcache.set(pos_memcache_key, pos)
+    logging.info("Caching pos for {}".format(pos_memcache_key))
+    return pos
 
 
 def send_admin_email_for_new_po(po_id):
@@ -154,9 +189,9 @@ def send_admin_email_for_new_po(po_id):
     if not po_dict:
         raise ValueError("There is no purchase order for this po_id: %s" % po_id)
 
-    _, user, _, _, _ = check_and_return_user()
-    username = user.email if user.email.find("@") else user.email + "@cdac.ca"
-    real_name = user.name
+    user = get_current_user()
+    username = user["email"] if user["email"].find("@") else user["email"] + "@cdac.ca"
+    real_name = user["name"]
     supplier = po_dict["supplier"]
     product = po_dict["product"]
     price = po_dict["price"]
@@ -167,7 +202,7 @@ def send_admin_email_for_new_po(po_id):
     if ENVIRONMENT == "DEMO":
         subject += " on %s" % ENVIRONMENT
 
-    email_template = u"""
+    email_template = """
         <p>Hello,</p>
         <p>{real_name} has made a purchase order request for the following:</p>
         <ul>
@@ -177,7 +212,12 @@ def send_admin_email_for_new_po(po_id):
         </ul>
         <p>To approve or deny this request, click <a href='{approval_link}'>here</a>.</p>
         <p>Thank you, and have a great day!</p>
-    """.format(price, real_name=real_name, supplier=supplier, product=product,
-               approval_link=approval_link)
+    """.format(
+        price,
+        real_name=real_name,
+        supplier=supplier,
+        product=product,
+        approval_link=approval_link,
+    )
 
     send_message(APPROVAL_ADMINS, subject, html=email_template)

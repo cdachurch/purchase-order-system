@@ -1,8 +1,9 @@
 """
 Purchase order model
 """
-from google.appengine.ext import ndb
-from google.appengine.api import memcache
+from google.cloud import ndb
+
+# from google.appengine.api import memcache
 
 from app.models import BaseModel
 from settings import POS_FOR_PURCHASER_MEMCACHE_KEY, ALL_POS_ORDERED_MEMCACHE_KEY
@@ -12,6 +13,7 @@ class PurchaseOrder(BaseModel):
     """
     PurchaseOrder model
     """
+
     po_id = ndb.StringProperty()
     pretty_po_id = ndb.IntegerProperty(indexed=True)
     purchaser = ndb.StringProperty()
@@ -27,20 +29,22 @@ class PurchaseOrder(BaseModel):
     is_invoiced = ndb.BooleanProperty()
     is_cancelled = ndb.BooleanProperty()
 
-    is_addressed = ndb.ComputedProperty(lambda self: self.is_approved or self.is_denied or self.is_cancelled)
+    is_addressed = ndb.ComputedProperty(
+        lambda self: self.is_approved or self.is_denied or self.is_cancelled
+    )
 
     VALID_ORDER_DIRECTIONS = ["ASC", "DESC"]
 
     @classmethod
     def build_key(cls, po_id):
-        """ Build and return a PurchaseOrder key """
+        """Build and return a PurchaseOrder key"""
         key = ndb.Key(cls, po_id)
         return key
 
     def _post_put_hook(self, future):
-        """ Invalidate memcaches whenever a PO gets updated """
+        """Invalidate memcaches whenever a PO gets updated"""
         super(PurchaseOrder, self)._post_put_hook(future)
-        reset_memcache_for_purchase_orders(self.purchaser)
+        # reset_memcache_for_purchase_orders(self.purchaser)
 
     def to_dict(self):
         return {
@@ -57,9 +61,9 @@ class PurchaseOrder(BaseModel):
             "is_invoiced": self.is_invoiced,
             "is_cancelled": self.is_cancelled,
             "approved_by": self.approved_by,
-            "created_date": self.created.strftime('%Y-%m-%d') if self.created else None,
-            "last_updated": self.updated.strftime('%Y-%m-%d') if self.updated else None,
-            "deleted_date": self.deleted.strftime('%Y-%m-%d') if self.deleted else None,
+            "created_date": self.created.strftime("%Y-%m-%d") if self.created else None,
+            "last_updated": self.updated.strftime("%Y-%m-%d") if self.updated else None,
+            "deleted_date": self.deleted.strftime("%Y-%m-%d") if self.deleted else None,
         }
 
     @classmethod
@@ -76,35 +80,40 @@ class PurchaseOrder(BaseModel):
 
     @classmethod
     def get_all_purchase_orders(cls, limit=None):
-        """ Gets all purchase orders, ordered by pretty po id """
+        """Gets all purchase orders, ordered by pretty po id"""
         if limit and not isinstance(limit, int):
             raise ValueError("limit must be an integer")
         query = cls.query().order(cls.pretty_po_id)
         return query.fetch(limit=limit)
 
     @classmethod
-    def get_all_purchase_orders_and_order_by_pretty_po_id(cls, order_direction, limit=None):
-        """ Get all purchase orders, ordered by pretty_po_id """
+    def get_all_purchase_orders_and_order_by_pretty_po_id(
+        cls, order_direction, limit=None
+    ):
+        """Get all purchase orders, ordered by pretty_po_id"""
         if not order_direction:
             raise ValueError("order direction must be provided (ASC, DESC)")
         if limit and not isinstance(limit, int):
             raise ValueError("limit must be an integer")
-        query = cls.query().order(cls.pretty_po_id) if order_direction == "ASC" else \
-            cls.query().order(-cls.created)
+        query = (
+            cls.query().order(cls.pretty_po_id)
+            if order_direction == "ASC"
+            else cls.query().order(-cls.created)
+        )
         return query.fetch(limit=limit)
 
     @classmethod
     def get_purchase_orders_by_purchaser(cls, purchaser, limit=None):
-        """ Get purchase orders with a query """
+        """Get purchase orders with a query"""
         if not purchaser:
             raise ValueError("purchaser (email address) must be provided")
         query = cls.gql("WHERE purchaser = :1", purchaser)
         return query.fetch(limit=limit)
 
 
-def reset_memcache_for_purchase_orders(purchaser=None):
-    if purchaser:
-        memcache.delete(POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser))
+# def reset_memcache_for_purchase_orders(purchaser=None):
+#     if purchaser:
+#         memcache.delete(POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser))
 
-    for ordering in PurchaseOrder.VALID_ORDER_DIRECTIONS:
-        memcache.delete(ALL_POS_ORDERED_MEMCACHE_KEY.format(ordering))
+#     for ordering in PurchaseOrder.VALID_ORDER_DIRECTIONS:
+#         memcache.delete(ALL_POS_ORDERED_MEMCACHE_KEY.format(ordering))
