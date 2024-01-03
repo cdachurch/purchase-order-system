@@ -12,7 +12,7 @@
     "clean": "rimraf -rf build",
     "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
     "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
-    "start": "dev_appserver.py src/app.yaml --port=8079 --admin_port=9079 --storage_path=./data/"
+    "start": "flask --app src/main run --cert=adhoc"
   },
   "repository": {
     "type": "git",
