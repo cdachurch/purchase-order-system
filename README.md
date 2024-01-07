@@ -30,9 +30,9 @@ the login flow and such, so we want that for sure.
 ## Deployment:
 
 Main app:
-Run `yarn deploy:demo` which will build the app and deploy to a demo environment. Confirm that all is well before going to prod!
-Run `yarn deploy:prod` which will build the app (again) and deploy to prod 😁
+Run `npm run deploy:demo` which will build the app and deploy to a demo environment. Confirm that all is well before going to prod!
+Run `npm run deploy:prod` which will build the app (again) and deploy to prod 😁
 
 Go API:
-Run `yarn deploy:api:demo` which will deploy the go app that serves the list API to demo. You will need to have purchase-order-system-go checked out in the same directory as purchase-order-system (as in, the directories should be siblings) for this to work.
-Run `yarn deploy:api:prod` to deploy to prod.
+Run `npm run deploy:api:demo` which will deploy the go app that serves the list API to demo. You will need to have purchase-order-system-go checked out in the same directory as purchase-order-system (as in, the directories should be siblings) for this to work.
+Run `npm run deploy:api:prod` to deploy to prod.
