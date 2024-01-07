@@ -100,15 +100,11 @@ def create_purchase_post():
 
     po_id = None
     try:
-        is_multiline = post_body.get("multiline-po")
         purchaser = post_body["email"]
         supplier = post_body["supplier"]
-        if not is_multiline:
-            product = post_body["product"]
-        else:
-            product = post_body["multiline-product"]
-            product = product.replace("\r\n", "<br />")
-            product = product.replace("\n", "<br />")
+        product = post_body["product"]
+        product = product.replace("\r\n", "<br />")
+        product = product.replace("\n", "<br />")
         price = post_body["price"]
         _po_id = post_body.get("_poid")
         # Strip any $ or , from the price
@@ -126,11 +122,10 @@ def create_purchase_post():
             )
     except (ValueError, KeyError) as ve:
         context["form"] = {
-            "purchaser": purchaser,
-            "supplier": supplier,
-            "product": product,
-            "price": price,
-            "account_code": account_code,
+            "supplier": post_body.get("supplier"),
+            "product": post_body.get("product"),
+            "price": post_body.get("price"),
+            "account_code": post_body.get("accountcode"),
         }
         context["errors"] = [str(ve)]
 
