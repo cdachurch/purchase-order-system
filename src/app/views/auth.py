@@ -1,6 +1,7 @@
 """
 Routes relating to authentication I guess
 """
+import json
 from flask import Blueprint, session, request, redirect, url_for
 from google.cloud import ndb
 
@@ -23,7 +24,7 @@ def oauth_login():
     # Use the client_secret.json file to identify the application requesting
     # authorization. The client ID (from that file) and access scopes are required.
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        settings.CLIENT_CONFIG,
+        json.loads(settings.CLIENT_CONFIG),
         scopes=[
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",
@@ -36,8 +37,7 @@ def oauth_login():
     # match one of the authorized redirect URIs for the OAuth 2.0 client, which you
     # configured in the API Console. If this value doesn't match an authorized URI,
     # you will get a 'redirect_uri_mismatch' error.
-    flow.redirect_uri = "https://127.0.0.1:5000/auth/oauth2callback"
-
+    flow.redirect_uri = settings.OAUTH_REDIRECT_URI
     # Generate URL for request to Google's OAuth 2.0 server.
     # Use kwargs to set optional request parameters.
     authorization_url, state = flow.authorization_url()
@@ -49,7 +49,7 @@ def oauth_login():
 def oauth_callback():
     state = session["state"]
     flow = google_auth_oauthlib.flow.Flow.from_client_config(
-        settings.CLIENT_CONFIG,
+        json.loads(settings.CLIENT_CONFIG),
         scopes=[
             "https://www.googleapis.com/auth/userinfo.email",
             "https://www.googleapis.com/auth/userinfo.profile",

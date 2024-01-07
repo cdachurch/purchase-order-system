@@ -23,7 +23,8 @@ bp = Blueprint("purchase_api", __name__, url_prefix="/api/v1/purchase")
 @bp.post("/create/interim/")
 def create_interim_po():
     po_entity = None
-    po_entity = create_interim_purchase_order()
+    with client.context():
+        po_entity = create_interim_purchase_order()
     return {"data": {"po_id": po_entity.po_id, "pretty_po_id": po_entity.pretty_po_id}}
 
 

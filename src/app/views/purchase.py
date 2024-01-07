@@ -115,14 +115,15 @@ def create_purchase_post():
         price = price.replace("$", "").replace(",", "")
         account_code = post_body.get("accountcode")
 
-        po_id = create_purchase_order(
-            purchaser,
-            supplier,
-            product,
-            price,
-            po_id=_po_id,
-            account_code=account_code,
-        )
+        with client.context():
+            po_id = create_purchase_order(
+                purchaser,
+                supplier,
+                product,
+                price,
+                po_id=_po_id,
+                account_code=account_code,
+            )
     except (ValueError, KeyError) as ve:
         context["form"] = {
             "purchaser": purchaser,
@@ -136,6 +137,7 @@ def create_purchase_post():
     if po_id:
         context["success"] = True
         context["po_id"] = po_id
-        send_admin_email_for_new_po(po_id)
+        with client.context():
+            send_admin_email_for_new_po(po_id)
 
     return create_purchase(**context)
