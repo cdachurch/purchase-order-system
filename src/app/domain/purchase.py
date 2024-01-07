@@ -6,8 +6,6 @@ These functions should be called from within an ndb client context, they won't c
 import logging
 import uuid
 
-# from google.appengine.api import memcache
-
 from app.domain.user import get_current_user
 from app.models.purchaseorder import PurchaseOrder
 from app.utility.mailer import send_message
@@ -15,8 +13,6 @@ from settings import (
     APPROVAL_ADMINS,
     ENVIRONMENT,
     SERVER_ADDRESS,
-    POS_FOR_PURCHASER_MEMCACHE_KEY,
-    ALL_POS_ORDERED_MEMCACHE_KEY,
 )
 
 
@@ -129,45 +125,6 @@ def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
             raise ValueError("Couldn't find a purchase order with po_id of %s" % po_id)
     elif po_entity:
         return po_entity.to_dict()
-
-
-def get_all_purchase_orders(order_direction=None, limit=None):
-    # cached_pos = memcache.get(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction))
-
-    # if cached_pos:
-    #     logging.info('Returning cached pos for {}'.format(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)))
-    #     return cached_pos
-    # else:
-    if order_direction in PurchaseOrder.VALID_ORDER_DIRECTIONS:
-        purchase_orders = (
-            PurchaseOrder.get_all_purchase_orders_and_order_by_pretty_po_id(
-                order_direction, limit=limit
-            )
-        )
-    else:
-        purchase_orders = PurchaseOrder.get_all_purchase_orders(limit=limit)
-
-    # memcache.set(ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction), purchase_orders)
-    logging.info(
-        "Caching pos for {}".format(
-            ALL_POS_ORDERED_MEMCACHE_KEY.format(order_direction)
-        )
-    )
-    return purchase_orders
-
-
-def get_purchase_orders_by_purchaser(purchaser, limit=None):
-    pos_memcache_key = POS_FOR_PURCHASER_MEMCACHE_KEY.format(purchaser)
-
-    # cached_pos = memcache.get(pos_memcache_key)
-    # if cached_pos:
-    #     logging.info('Returning cached pos for {}'.format(pos_memcache_key))
-    #     return cached_pos
-    # else:
-    pos = PurchaseOrder.get_purchase_orders_by_purchaser(purchaser, limit=limit)
-    # memcache.set(pos_memcache_key, pos)
-    logging.info("Caching pos for {}".format(pos_memcache_key))
-    return pos
 
 
 def send_admin_email_for_new_po(po_id):

@@ -10,7 +10,7 @@ from settings_secret import (
     CLIENT_CONFIG_PROD,
     SESSION_SECRET_DEMO,
     SESSION_SECRET_PROD,
-    SENDGRID_KEY,
+    SENDGRID_KEY,  # This is imported from settings from elsewhere so we need it here
 )
 
 OAUTH_CLIENT_ID = (
@@ -48,23 +48,14 @@ OAUTH_REDIRECT_URI = "%sauth/oauth2callback" % (SERVER_ADDRESS)
 APPROVAL_ADMINS = [
     "gdholtslander@cdac.ca",
     "gholtslander@cdac.ca",
-    # "smyhre@cdac.ca",
+    "smyhre@cdac.ca",
+    "cbayles@cdac.ca",
 ]
 
 FINANCE_ADMINS = [
     "dwiebe@cdac.ca",
     "gdholtslander@cdac.ca",
 ]
-
-CAN_SEE_ALL_POS = (
-    APPROVAL_ADMINS
-    + FINANCE_ADMINS
-    + [
-        "jheindle",
-        "rhoult",
-        "rsmith",
-    ]
-)
 
 
 def is_approval_admin(email):
@@ -75,11 +66,3 @@ def is_approval_admin(email):
 def is_finance_admin(email):
     """Email addresses that can do finance related tasks to POs (cancel them, mainly)"""
     return email in FINANCE_ADMINS
-
-
-POS_FOR_PURCHASER_MEMCACHE_KEY = "all-pos-for-{}"
-ALL_POS_ORDERED_MEMCACHE_KEY = "all-pos-for-order-{}"
-
-
-def is_devappserver():
-    return os.environ.get("GAE_APPLICATION") == "local"
