@@ -3,18 +3,26 @@
 .bg-danger,
 .bg-info {
   padding: 15px;
-  border-radius: 5px; }
+  border-radius: 5px;
+}
 
 .bg-cancelled {
   color: #dbdbdb;
-  font-style: italic; }
+  font-style: italic;
+}
 
 body {
-  padding-bottom: 100px; }
+  padding-bottom: 100px;
+}
 
 .footer-image {
-  height: 40px; }
-  @media (max-width: 768px) {
-    .footer-image {
-      height: auto;
-      width: 100%; } }
+  height: 40px;
+}
+@media (max-width: 768px) {
+  .footer-image {
+    height: auto;
+    width: 100%;
+  }
+}
+
+/*# sourceMappingURL=global.css.map */

@@ -26,3 +26,13 @@ sure at this point how it works on a new computer (todo: try this out!).
 `npm start` - this command will set the required environment variables and starts the
 flask server with an adhoc ssl cert for using https locally! That's handy for testing
 the login flow and such, so we want that for sure.
+
+## Deployment:
+
+Main app:
+Run `yarn deploy:demo` which will build the app and deploy to a demo environment. Confirm that all is well before going to prod!
+Run `yarn deploy:prod` which will build the app (again) and deploy to prod 😁
+
+Go API:
+Run `yarn deploy:api:demo` which will deploy the go app that serves the list API to demo. You will need to have purchase-order-system-go checked out in the same directory as purchase-order-system (as in, the directories should be siblings) for this to work.
+Run `yarn deploy:api:prod` to deploy to prod.
