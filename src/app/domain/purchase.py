@@ -6,6 +6,8 @@ These functions should be called from within an ndb client context, they won't c
 import logging
 import uuid
 
+from html_sanitizer import Sanitizer
+
 from app.domain.user import get_current_user
 from app.models.purchaseorder import PurchaseOrder
 from app.utility.mailer import send_message
@@ -73,9 +75,12 @@ def create_purchase_order(
         new_po.pretty_po_id = PurchaseOrder.get_next_pretty_po_id()
         po_id = generated_po_id
 
-    new_po.purchaser = purchaser if purchaser.find("@") else purchaser + "@cdac.ca"
+    split_purchaser = purchaser.split("@")
+    # Always take what's before the @, never "whoever@cdac.ca"
+    new_po.purchaser = split_purchaser[0]
     new_po.supplier = supplier
-    new_po.product = product
+    sanitizer = Sanitizer()
+    new_po.product = sanitizer.sanitize(product)
     if account_code:
         new_po.account_code = account_code
     new_po.price = float(price)
