@@ -7,7 +7,7 @@ from sendgrid.helpers.mail import Mail
 import settings
 
 
-def send_message(to_emails, subject, html=None, sender="sendgrid@cdac.ca"):
+def send_message(to_emails, subject, html=None, sender="PO-Administrator@cdac.ca"):
     if not isinstance(to_emails, list):
         to_emails = [to_emails]
 
