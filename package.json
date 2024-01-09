@@ -13,7 +13,7 @@
     "clean": "rimraf -rf build",
     "create-indexes:demo": "gcloud datastore indexes create src/index.yaml --project=cdac-demo-purchaseorder",
     "create-indexes:prod": "gcloud datastore indexes create src/index.yaml --project=cdac-purchaseorder",
-    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
+    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml",
     "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
     "deploy:api:demo": "gcloud app deploy --project=cdac-demo-purchaseorder ../purchase-order-system-go/go-app/app.yaml -q --promote",
     "deploy:api:prod": "gcloud app deploy --project=cdac-purchaseorder ../purchase-order-system-go/go-app/app.yaml -q --promote",
