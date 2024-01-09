@@ -1,125 +1,138 @@
 """
 Views for purchase orders
 """
-from app.domain.purchase import create_purchase_order, get_purchase_order_to_dict, \
-                                send_admin_email_for_new_po, check_and_return_user
-from app.views import TemplatedView
+from flask import Blueprint, redirect, url_for, request, session
+from google.cloud import ndb
+
+from app.domain.purchase import (
+    create_purchase_order,
+    get_purchase_order_to_dict,
+    send_admin_email_for_new_po,
+)
+from app.views import render_po_template
 from app.workflow.user import get_log_in_out_links_and_user
 
+bp = Blueprint("purchase", __name__, url_prefix="/purchase")
 
-class PurchaseView(TemplatedView):
-    def get(self, po_id):
-        bread_crumbs = [
-            ("Home", self.uri_for('index')),
-            ("List purchase orders", self.uri_for("list_purchases")),
-            ("View purchase order", None)
-        ]
+client = ndb.Client()
 
-        context = {}
 
-        # Add the login/out links and the user info
-        context.update(get_log_in_out_links_and_user())
+@bp.route("/")
+def top_500():
+    if "email" not in session:
+        return redirect("/")
 
+    bread_crumbs = [("Home", url_for("index")), ("List purchase orders", None)]
+
+    context = {
+        # "purchase_orders": get_all_purchase_orders(),
+        "bread_crumbs": bread_crumbs
+    }
+
+    # Add the login/out links and the user info
+    context.update(get_log_in_out_links_and_user())
+
+    return render_po_template("purchaseorders.html", **context)
+
+
+@bp.route("/<po_id>/")
+def purchase_view(po_id):
+    bread_crumbs = [
+        ("Home", url_for("index")),
+        ("List purchase orders", url_for("purchase.top_500")),
+        ("View purchase order", None),
+    ]
+
+    context = {}
+
+    # Add the login/out links and the user info
+    context.update(get_log_in_out_links_and_user())
+
+    with client.context():
         try:
             po_dict = get_purchase_order_to_dict(po_id=po_id)
         except ValueError:
-            self.render_response("404.html", **context)
-            return
+            return render_po_template("404.html", **context)
 
         context.update(po_dict)
-        context["bread_crumbs"] = bread_crumbs
+    context["bread_crumbs"] = bread_crumbs
 
-        self.render_response("purchase.html", **context)
-
-
-class PurchaseListView(TemplatedView):
-    def get(self):
-        bread_crumbs = [
-            ("Home", self.uri_for('index')),
-            ("List purchase orders", None)
-        ]
-
-        context = {
-            # "purchase_orders": get_all_purchase_orders(),
-            "bread_crumbs": bread_crumbs
-        }
-
-        # Add the login/out links and the user info
-        context.update(get_log_in_out_links_and_user())
-
-        self.render_response("purchaseorders.html", **context)
+    return render_po_template("purchase.html", **context)
 
 
-class AllPurchaseListView(TemplatedView):
-    def get(self):
-        bread_crumbs = [
-            ("Home", self.uri_for('index')),
-            ("List purchase orders", None)
-        ]
+@bp.route("/all/")
+def all_purchases():
+    bread_crumbs = [("Home", url_for("index")), ("List purchase orders", None)]
 
-        context = {
-            # "purchase_orders": get_all_purchase_orders(),
-            "bread_crumbs": bread_crumbs
-        }
+    context = {
+        # "purchase_orders": get_all_purchase_orders(),
+        "bread_crumbs": bread_crumbs
+    }
 
-        # Add the login/out links and the user info
-        context.update(get_log_in_out_links_and_user())
+    # Add the login/out links and the user info
+    context.update(get_log_in_out_links_and_user())
 
-        self.render_response("allpurchaseorders.html", **context)
+    return render_po_template("purchaseorders.html", **context)
 
 
-class PurchaseCreateView(TemplatedView):
-    def get(self, **context):
-        bread_crumbs = [
-            ("Home", self.uri_for('index')),
-            ("List purchase orders", self.uri_for("list_purchases")),
-            ("Create purchase order", None)
-        ]
-        if not context:
-            context = {}
-        context["bread_crumbs"] = bread_crumbs
-        if not context.get("form", None):
-            context["form"] = {}
-        # Add the login/out links and the user info
-        context.update(get_log_in_out_links_and_user())
-
-        self.render_response("create.html", **context)
-
-    def post(self):
-        _, user, _, _, _ = check_and_return_user()
-        if user is None:
-            return self.redirect('/login')
-
+@bp.get("/create/")
+def create_purchase(**context):
+    bread_crumbs = [
+        ("Home", url_for("index")),
+        ("List purchase orders", url_for("purchase.top_500")),
+        ("Create purchase order", None),
+    ]
+    if not context:
         context = {}
+    context["bread_crumbs"] = bread_crumbs
+    if not context.get("form", None):
+        context["form"] = {}
 
-        post_body = self.request.POST
+    return render_po_template("create.html", **context)
 
-        po_id = None
-        try:
-            purchaser = post_body["email"]
-            supplier = post_body["supplier"]
-            product = post_body["product"]
-            product = product.replace("\r\n", "<br />")
-            product = product.replace("\n", "<br />")
-            price = post_body["price"]
-            _po_id = post_body.get("_poid")
-            # Strip any $ or , from the price
-            price = price.replace("$", "").replace(",", "")
-            account_code = post_body.get("accountcode")
 
-            po_id = create_purchase_order(purchaser, supplier, product, price, po_id=_po_id, account_code=account_code)
-        except (ValueError, KeyError) as ve:
-            context['form'] = {
-                'supplier': post_body.get('supplier'),
-                'product': post_body.get('product'),
-                'price': post_body.get('price'),
-                'account_code': post_body.get('accountcode')
-            }
-            context['errors'] = [ve.message]
+@bp.post("/create/")
+def create_purchase_post():
+    context = {}
 
-        if po_id:
-            context["success"] = True
-            context["po_id"] = po_id
+    # https://flask.palletsprojects.com/en/3.0.x/quickstart/#the-request-object
+    post_body = request.form
+
+    po_id = None
+    try:
+        purchaser = post_body["email"]
+        supplier = post_body["supplier"]
+        product = post_body["product"]
+        product = product.replace("\r\n", "<br />")
+        product = product.replace("\n", "<br />")
+        price = post_body["price"]
+        _po_id = post_body.get("_poid")
+        # Strip any $ or , from the price
+        price = price.replace("$", "").replace(",", "")
+        account_code = post_body.get("accountcode")
+
+        with client.context():
+            po_id = create_purchase_order(
+                purchaser,
+                supplier,
+                product,
+                price,
+                po_id=_po_id,
+                account_code=account_code,
+            )
+    except (ValueError, KeyError) as ve:
+        context["form"] = {
+            "supplier": post_body.get("supplier"),
+            "product": post_body.get("product"),
+            "price": post_body.get("price"),
+            "account_code": post_body.get("accountcode"),
+        }
+        context["errors"] = [str(ve)]
+
+    if po_id:
+        context["success"] = True
+        context["po_id"] = po_id
+        with client.context():
             send_admin_email_for_new_po(po_id)
 
-        self.get(**context)
+    return create_purchase(**context)

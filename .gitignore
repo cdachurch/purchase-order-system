@@ -7,3 +7,8 @@ coverage-report/*
 node_modules
 build
 data/
+
+__pycache__/
+.venv
+settings_secret.py
+cdac-demo-purchaseorder-service-account.json

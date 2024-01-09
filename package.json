@@ -3,35 +3,21 @@
   "version": "1.0.0",
   "description": "Purchase order system written on Google App Engine",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "devDependencies": {
-    "bower": "^1.8.8",
-    "copyfiles": "^2.4.1",
-    "nodemon": "^1.7.1",
-    "rimraf": "^3.0.2",
-    "sass": "^1.53.0"
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.5",
+    "shx": "^0.3.4"
   },
   "scripts": {
-    "build-js": "webpack",
-    "watch-js": "webpack --watch",
-    "build-css": "sass src/static/scss/global.scss src/static/css/global.css",
-    "watch-css": "nodemon -e scss -x \"npm run build-css\"",
-    "test": "BABEL_JEST_STAGE=0 jest",
-    "build-js:prod": "echo 'no op, po system does not have any bundled js right now'",
-    "build-css:prod": "sass build/static/scss/global.scss build/static/css/global.css",
-    "build:prod": "npm run clean && npm run copy && npm run build-css:prod",
-    "build:test": "npm run clean && npm run copy",
+    "build:prod": "npm run clean && shx cp -r src build",
     "clean": "rimraf -rf build",
-    "copy": "copyfiles -u 1 \"src/**/*\" build",
     "create-indexes:demo": "gcloud datastore indexes create src/index.yaml --project=cdac-demo-purchaseorder",
     "create-indexes:prod": "gcloud datastore indexes create src/index.yaml --project=cdac-purchaseorder",
-    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
+    "deploy:prod": "npm run build:prod && gcloud app deploy --project=cdac-purchaseorder build/app.yaml build/dispatch.yaml",
     "deploy:demo": "npm run build:prod && gcloud app deploy --project=cdac-demo-purchaseorder build/app.yaml build/dispatch.yaml -q --promote",
     "deploy:api:demo": "gcloud app deploy --project=cdac-demo-purchaseorder ../purchase-order-system-go/go-app/app.yaml -q --promote",
     "deploy:api:prod": "gcloud app deploy --project=cdac-purchaseorder ../purchase-order-system-go/go-app/app.yaml -q --promote",
-    "start": "dev_appserver.py src/app.yaml --port=8079 --admin_port=9079 --storage_path=./data/"
+    "start": "cross-env GOOGLE_APPLICATION_CREDENTIALS=E:\\Code\\purchase-order-system\\cdac-demo-purchaseorder-service-account.json SERVER_SOFTWARE=Development flask --app src/main run --cert=adhoc"
   },
   "repository": {
     "type": "git",

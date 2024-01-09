@@ -32,7 +32,7 @@
             <li{% block create_active %}{% endblock %}><a href="/purchase/create/">Create PO</a></li>
           </ul>
         {% if user %}
-            <p class="navbar-text navbar-right">Logged in as: {% if user.name %}{{ user.name }}{% else %}{{ name }}{% endif %} (<a href="{{ logout }}" class="navbar-link">logout</a>)</p>
+            <p class="navbar-text navbar-right">Hello {% if user.name %}{{ user.name }}{% else %}{{ name }}{% endif %}! (<a href="{{ logout }}" class="navbar-link">logout</a>)</p>
         {% else %}
         <p class="navbar-text navbar-right"><a href="{{ login }}" class="navbar-link">Log in</a></p>
         {% endif %}

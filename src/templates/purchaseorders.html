@@ -42,7 +42,7 @@
         userIsAdmin: {% if user_is_admin or user_is_finance_admin %}true{% else %} false{% endif %},
         user: {% if user %} true{% else %} false{% endif %},
         userEmail: '{{ user.email }}',
-        userIsFinanceAdmin: {% if user_is_finance_admin %} true{% else %} false{% endif %}
+        userIsFinanceAdmin: {% if user_is_finance_admin %} true{% else %} false{% endif %},
     };
 </script>
 <script type="text/javascript" src="/static/js/pages/purchaseorders.js"></script>

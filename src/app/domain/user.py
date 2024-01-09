@@ -1,31 +1,27 @@
 """
 Domain functions for users
 """
-from google.appengine.api import users
-
+from google.cloud import ndb
+from flask import session
 import settings
 from app.models.user import User
+
+client = ndb.Client()
 
 
 def check_and_return_user():
     """
     Returns a Users.user object, an ndb_user, and whether or not they exist in datastore
     """
-    user = users.get_current_user()
-    ndb_user = None
-    in_datastore = False
+    user = get_current_user()
     is_finance_admin = False
-    is_approval_admin = users.is_current_user_admin()
+    is_approval_admin = False
 
     if user:
-        ndb_user = User.get_by_user_id(user.user_id())
-        if ndb_user:
-            in_datastore = True
+        is_approval_admin = settings.is_approval_admin(user["email"])
+        is_finance_admin = settings.is_finance_admin(user["email"])
 
-            is_approval_admin = settings.is_approval_admin(ndb_user.email)
-            is_finance_admin = settings.is_finance_admin(ndb_user.email)
-
-    return user, ndb_user, in_datastore, is_approval_admin, is_finance_admin
+    return user, is_approval_admin, is_finance_admin
 
 
 def create_user(name, email, user_id, key=None):
@@ -45,11 +41,7 @@ def create_user(name, email, user_id, key=None):
         # Make our own dang key!
         key = User.build_key(user_id)
 
-    kwargs = {
-        'name': name,
-        'email': email,
-        'user_id': user_id
-    }
+    kwargs = {"name": name, "email": email, "user_id": user_id}
     user = User(key=key, **kwargs)
 
     user.put()
@@ -58,10 +50,18 @@ def create_user(name, email, user_id, key=None):
 
 
 def get_current_user():
-    """ Get the current user from Google's Users API """
-    return users.get_current_user()
+    """Get the current user from the session"""
+    if not all(["email" in session, "user_id" in session, "name" in session]):
+        return None
+
+    user = {
+        "email": session["email"],
+        "user_id": session["user_id"],
+        "name": session["name"],
+    }
+    return user
 
 
 def get_log_links():
-    """ Get the log(in|out) links for a user """
-    return users.create_logout_url('/'), users.create_login_url('/user/new')
+    """Get the log(in|out) links for a user"""
+    return "/auth/logout", "/auth/login"

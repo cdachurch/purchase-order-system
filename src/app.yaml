@@ -1,39 +1,18 @@
-runtime: python27
-api_version: 1
-threadsafe: true
-
-builtins:
-- appstats: on
-
-libraries:
-- name: jinja2
-  version: latest
+runtime: python312
 
 handlers:
-- url: /favicon\.ico
-  static_files: static/img/favicon.ico
-  upload: static/img/favicon\.ico
-  secure: always
+  - url: /favicon\.ico
+    static_files: static/img/favicon.ico
+    upload: static/img/favicon\.ico
+    secure: always
 
-- url: /static
-  static_dir: static
-  secure: always
+  - url: /static
+    static_dir: static
+    secure: always
 
-- url: /.well-known
-  static_dir: .well-known
+  - url: /.well-known
+    static_dir: .well-known
 
-- url: /admin/.*
-  script: google.appengine.ext.admin.application
-  login: admin
-  secure: always
-
-- url: /.*
-  script: main.APP
-  secure: always
-
-skip_files:
-- ^(.*/)?#.*#$
-- ^(.*/)?.*~$
-- ^(.*/)?.*\.py[co]$
-- ^(.*/)?.*/RCS/.*$
-#- ^(.*/)?\..*$
+  - url: /.*
+    script: auto
+    secure: always

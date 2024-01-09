@@ -1,31 +1,38 @@
-purchase-order-system
-=====================
+# purchase-order-system
 
 A purchase order system that runs on Google's App Engine, Python flavour. It uses Google apps authentication, and it requires a custom apps domain set in the app settings.
 
-# Local development
+## Running the app locally
 
-Prerequisites:
+Most parts of the app work locally with pretty low effort. You'll need to get one file
+from the cloud console before you get too far into it, it's the .json file for the service
+account that can access the demo environment's Datastore (where the local app points).
 
-* [pyenv](https://github.com/pyenv/pyenv) with python 2.7.16 installed like so: `pyenv install 2.7.16`
-* [yarn](https://yarnpkg.com/)
-* Node 10(+)
-* [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) with Python, Python Extras, and Go Extensions plugins installed
+### Local dev service account
 
-Steps:
+The service account to use for local dev is aptly named and lives [right here](https://console.cloud.google.com/iam-admin/serviceaccounts/details/102111909895029700743/keys?authuser=0&project=cdac-demo-purchaseorder)! You can add a key to get the json file. Drag it into the root of
+the project and rename it to `cdac-demo-purchaseorder-service-account.json`. This is so that
+it will be ignored by git (check .gitignore for details there).
 
-1. Setup the python2 binary: `pyenv shell 2.7.16`
-2. `yarn` to install frontend dependencies
-3. `yarn start` to start the dev_appserver.py to run the app
-4. In another terminal or process, run `yarn watch-js` to build JS
-5. Somehow run the Go api so that you can list purchase orders
+### Python virtualenv
 
-# Deployment:
+Once the json file is in place, you're pretty much set to get the app running. First
+though you'll need to activate the python virtualenv. This could be as simple as just
+running `.venv\Scripts\activate` (or the non-Windows equivalent), but I'm honestly not
+sure at this point how it works on a new computer (todo: try this out!).
+
+### Running the app
+
+`npm start` - this command will set the required environment variables and starts the
+flask server with an adhoc ssl cert for using https locally! That's handy for testing
+the login flow and such, so we want that for sure.
+
+## Deployment:
 
 Main app:
-Run `yarn deploy:demo` which will build the app and deploy to a demo environment. Confirm that all is well before going to prod!
-Run `yarn deploy:prod` which will build the app (again) and deploy to prod 😁
+Run `npm run deploy:demo` which will build the app and deploy to a demo environment. Confirm that all is well before going to prod!
+Run `npm run deploy:prod` which will build the app (again) and deploy to prod 😁
 
 Go API:
-Run `yarn deploy:api:demo` which will deploy the go app that serves the list API to demo. You will need to have purchase-order-system-go checked out in the same directory as purchase-order-system for this to work.
-Run `yarn deploy:api:prod` to deploy to prod.
+Run `npm run deploy:api:demo` which will deploy the go app that serves the list API to demo. You will need to have purchase-order-system-go checked out in the same directory as purchase-order-system (as in, the directories should be siblings) for this to work.
+Run `npm run deploy:api:prod` to deploy to prod.

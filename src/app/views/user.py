@@ -1,39 +1,37 @@
 """
 User views
 """
-from app.views import TemplatedView
+from flask import Blueprint, redirect, request
+from app.views import render_po_template
 from app.domain.user import get_current_user
 from app.workflow.user import get_or_create_user, get_log_in_out_links_and_user
 
-class NewUserView(TemplatedView):
-    """ New user view, gets called when someone signs in """
+bp = Blueprint("user", __name__, url_prefix="/user")
 
-    def get(self):
-        """ GET """
-        context = {}
 
-        # Add the login/out links and the user info
-        context.update(get_log_in_out_links_and_user())
+@bp.get("/new/")
+def new_user():
+    context = {}
 
-        if context['in_datastore']:
-            # Not making someone new, redirect back home
-            self.redirect('/')
-        else:
-            context['new_user'] = True
+    # Add the login/out links and the user info
+    context.update(get_log_in_out_links_and_user())
 
-        self.render_response("user.html", **context)
+    if context["in_datastore"]:
+        # Not making someone new, redirect back home
+        redirect("/")
+    else:
+        context["new_user"] = True
 
-    def post(self):
-        """ POST """
-        name = self.request.POST.get('name')
-        email = self.request.POST.get('email')
-        users_user = get_current_user()
+    return render_po_template("user.html", **context)
 
-        # Acknowledging that it will return something, but have no use for it
-        _ = get_or_create_user(name, email, users_user.user_id())
 
-        new_context = {
-            'name': name
-        }
+@bp.post("/new/")
+def new_user_post():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    users_user = get_current_user()
 
-        self.redirect_to('index', **new_context)
+    # Acknowledging that it will return something, but have no use for it
+    _ = get_or_create_user(name, email, users_user["user_id"])
+
+    return redirect("/")

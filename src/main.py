@@ -1,25 +1,29 @@
-import os
+from flask import Flask
 
-import set_sys_path # Must be done first to set up path
-
-from webapp2 import WSGIApplication
-from urls import ROUTES
-
+from app.views import auth, purchase, render_po_template, user
+from app.views.api.v1 import purchases as purchases_api
 from app.views.filters import format_currency, pad_zeros, copyright_year
+from app.workflow.user import get_log_in_out_links_and_user
 
-TEMPLATE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                            'templates')
+import settings
 
-CONFIG = {
-    'webapp2_extras.jinja2': {
-        'filters': {
-            'currency': format_currency,
-            'pad': pad_zeros,
-            'copyright': copyright_year,
-        },
-        'template_path': TEMPLATE_DIR
+app = Flask(__name__)
+app.jinja_env.filters.update(
+    {
+        "currency": format_currency,
+        "pad": pad_zeros,
+        "copyright": copyright_year,
     }
-}
+)
+app.secret_key = settings.SESSION_SECRET
 
 
-APP = WSGIApplication(ROUTES, config=CONFIG)
+@app.route("/")
+def index():
+    return render_po_template("index.html", **(get_log_in_out_links_and_user()))
+
+
+app.register_blueprint(auth.bp)
+app.register_blueprint(purchase.bp)
+app.register_blueprint(user.bp)
+app.register_blueprint(purchases_api.bp)
