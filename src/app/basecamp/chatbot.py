@@ -1,7 +1,3 @@
-"""
-Utility functions to send mail
-"""
-
 import requests
 
 # Production Campfire URL

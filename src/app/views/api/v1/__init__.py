@@ -1,9 +1,6 @@
 """
 API base view
 """
-import json
-
-from app.utility.mailer import send_message
 
 
 class AcceptedUsers(object):

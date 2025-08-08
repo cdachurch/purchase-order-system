@@ -11,7 +11,7 @@ from html_sanitizer import Sanitizer
 
 from app.domain.user import get_current_user
 from app.models.purchaseorder import PurchaseOrder
-from app.utility.mailer import send_message
+from app.basecamp.chatbot import send_message
 from settings import (
     APPROVAL_ADMINS,
     ENVIRONMENT,
@@ -175,4 +175,4 @@ def send_admin_email_for_new_po(po_id):
         approval_link=approval_link,
     )
 
-    send_message(APPROVAL_ADMINS, subject, html=email_template)
+    send_message(email_template)

@@ -1,10 +1,11 @@
 """
 Purchases api endpoints
 """
+
 from flask import Blueprint
 from google.cloud import ndb
 
-from app.utility.mailer import send_message
+from app.basecamp.chatbot import send_message
 from app.views.api.v1 import API_CONSTANTS
 from app.domain.purchase import (
     approve_purchase_order,
@@ -89,9 +90,7 @@ def send_email(to, how, po_entity):
     if all([supplier, product, price, pretty_po_id]):
         if how == API_CONSTANTS.ACCEPTED:
             send_message(
-                to,
-                API_CONSTANTS.ACCEPTED_SUBJECT,
-                html=API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(
+                API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(
                     price,
                     ppoid=str(pretty_po_id).zfill(4),
                     supplier=supplier,
@@ -100,9 +99,7 @@ def send_email(to, how, po_entity):
             )
         elif how == API_CONSTANTS.DENIED:
             send_message(
-                to,
-                API_CONSTANTS.DENIED_SUBJECT,
-                html=API_CONSTANTS.DENIED_EMAIL_HTML.format(
+                API_CONSTANTS.DENIED_EMAIL_HTML.format(
                     price,
                     ppoid=str(pretty_po_id).zfill(4),
                     supplier=supplier,
