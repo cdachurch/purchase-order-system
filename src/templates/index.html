@@ -1,14 +1,15 @@
-{% extends 'base.html' %}
-
-{% block title %}Circle Purchase Orders{% endblock %}
-
+{% extends 'base.html' %} {% block title %}Circle Purchase Orders{% endblock %}
 {% block content %}
-    <h2>Circle Purchase Orders</h2>
+<h2>Circle Purchase Orders</h2>
 
-    {% if user %}
-        <p>Use this site to make a purchase order. <a href='/purchase/create/'>Create a new PO here</a>.</p>
-        <p>Here's the <a href='/purchase/'>list of purchase orders</a>.</p>
-    {% else %}
-        <p>Please <a href="{{ login }}">log in</a> to use this system.</p>
-    {% endif %}
+{% if user %}
+<p>
+  Use this site to make a purchase order.
+  <a href="/purchase/create/">Create a new PO here</a>.
+</p>
+<p>Here's the <a href="/purchase/">list of purchase orders</a>.</p>
+{% else %}
+<p>Please <a href="{{ login }}">log in</a> to use this system.</p>
+{% endif %}
+<a href="{{ url_for('basecamp_login') }}">Login with Basecamp</a>
 {% endblock %}

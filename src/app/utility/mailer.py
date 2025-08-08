@@ -1,29 +1,20 @@
 """
 Utility functions to send mail
 """
-import logging
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-import settings
+
+import requests
+
+# Production Campfire URL
+# https://github.com/basecamp/bc3-api/blob/master/sections/chatbots.md#create-a-line
+# Posting json data to this URL sends messages to the Campfire chat or whatever in
+# the PO Connection project in Basecamp
+campfireUrl = "https://3.basecampapi.com/4235635/integrations/Khcgf1FLtqjuiCWtgKdGZov3/buckets/42591593/chats/8723038142/lines"
 
 
-def send_message(to_emails, subject, html=None, sender="PO-Administrator@cdac.ca"):
-    if not isinstance(to_emails, list):
-        to_emails = [to_emails]
-
-    logging.info("Sending emails to %s with content %s", to_emails, html)
-
-    for email in to_emails:
-        if email.find("@") == -1:
-            email = email + "@cdac.ca"
-            logging.info("Sending mail to %s", email)
-
-        message = Mail(
-            from_email=sender, subject=subject, to_emails=[email], html_content=html
-        )
-
-        try:
-            sg = SendGridAPIClient(settings.SENDGRID_KEY)
-            sg.send(message)
-        except Exception as e:
-            logging.warn(str(e))
+def send_message(html):
+    requests.post(
+        campfireUrl,
+        json={
+            "content": html,
+        },
+    )

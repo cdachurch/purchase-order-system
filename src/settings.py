@@ -11,7 +11,8 @@ from settings_secret import (
     CLIENT_CONFIG_PROD,
     SESSION_SECRET_DEMO,
     SESSION_SECRET_PROD,
-    SENDGRID_KEY,  # This is imported from settings from elsewhere so we need it here
+    BASECAMP_CLIENT_ID,
+    BASECAMP_CLIENT_SECRET,
 )
 
 OAUTH_CLIENT_ID = (
@@ -47,7 +48,7 @@ if "SERVER_SOFTWARE" in os.environ and os.environ["SERVER_SOFTWARE"].startswith(
 OAUTH_REDIRECT_URI = "%sauth/oauth2callback" % (SERVER_ADDRESS)
 
 APPROVAL_ADMINS = [
-    # "gdholtslander@cdac.ca",
+    "gdholtslander@cdac.ca",
     # "gholtslander@cdac.ca",
     "smyhre@cdac.ca",
     "cbayles@cdac.ca",
