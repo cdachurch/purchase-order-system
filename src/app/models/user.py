@@ -1,6 +1,7 @@
 """
 User models
 """
+
 from google.cloud import ndb
 
 from app.models import BaseModel
@@ -21,6 +22,10 @@ class User(BaseModel):
     user_id = ndb.StringProperty()
     name = ndb.StringProperty()
     email = ndb.StringProperty()
+
+    basecamp_access_token = ndb.StringProperty()
+    basecamp_refresh_token = ndb.StringProperty()
+    basecamp_todos_url = ndb.StringProperty()
 
     @classmethod
     def build_key(cls, user_id):

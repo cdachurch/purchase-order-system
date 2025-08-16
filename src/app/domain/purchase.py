@@ -9,11 +9,11 @@ import uuid
 
 from html_sanitizer import Sanitizer
 
-from app.domain.user import get_current_user
+from app.basecamp.todos import create_todo_item, update_todo_item
+from app.domain.user import get_current_ndb_user, get_current_user
 from app.models.purchaseorder import PurchaseOrder
 from app.basecamp.chatbot import send_message
 from settings import (
-    APPROVAL_ADMINS,
     ENVIRONMENT,
     SERVER_ADDRESS,
 )
@@ -35,6 +35,14 @@ def approve_purchase_order(po_entity, approver):
     )
 
     po_entity.put()
+
+    user = get_current_ndb_user()
+    update_todo_item(
+        po_entity.todo_url,
+        user.basecamp_access_token,
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"<p>This PO is approved ✅ - make sure to get your invoice to Des once you have one.</p>",
+    )
     return po_entity
 
 
@@ -48,6 +56,14 @@ def cancel_purchase_order(po_entity):
     po_entity.is_denied = False
     logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
+
+    user = get_current_ndb_user()
+    update_todo_item(
+        po_entity.todo_url,
+        user.basecamp_access_token,
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"<p>This PO has been cancelled 🚫</p>",
+    )
 
 
 def create_purchase_order(
@@ -89,9 +105,19 @@ def create_purchase_order(
 
     logging.info(new_po)
     logging.info(f"creating new po {new_po.po_id}, {new_po.pretty_po_id}")
+
+    approval_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_id)
+    user = get_current_ndb_user()
+    todo_url = create_todo_item(
+        user.basecamp_todos_url,
+        user.basecamp_access_token,
+        f"#{new_po.pretty_po_id} for {new_po.purchaser}",
+        f"<p>To approve or deny this request, click <a href='{approval_link}'>here</a>.</p>",
+    )
+    new_po.todo_url = todo_url
     new_po.put()
 
-    return po_id
+    return new_po.po_id
 
 
 def create_interim_purchase_order():
@@ -117,6 +143,13 @@ def deny_purchase_order(po_entity):
     po_entity.is_denied = True
     logging.info("po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
+    user = get_current_ndb_user()
+    update_todo_item(
+        po_entity.todo_url,
+        user.basecamp_access_token,
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"<p>This PO has been denied ❌</p>",
+    )
 
 
 def get_purchase_order_entity(po_id):

@@ -1,17 +1,15 @@
 """
 Domain functions for users
 """
-from google.cloud import ndb
+
 from flask import session
 import settings
 from app.models.user import User
 
-client = ndb.Client()
-
 
 def check_and_return_user():
     """
-    Returns a Users.user object, an ndb_user, and whether or not they exist in datastore
+    Returns a user object from the current session, as well as some admin flags
     """
     user = get_current_user()
     is_finance_admin = False
@@ -60,6 +58,19 @@ def get_current_user():
         "name": session["name"],
     }
     return user
+
+
+def get_current_ndb_user():
+    """Get the current user from the datastore - this function should be called within an ndb client context"""
+    user = get_current_user()
+    if not user:
+        return None
+
+    dbUser = User.get_by_user_id(user["user_id"])
+    if not dbUser:
+        return None
+
+    return dbUser
 
 
 def get_log_links():

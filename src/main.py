@@ -1,9 +1,11 @@
-from flask import Flask, url_for
+from flask import Flask, redirect, url_for
 from authlib.integrations.flask_client import OAuth
 
 # Imports the Cloud Logging client library
 import google.cloud.logging
+from google.cloud import ndb
 
+from app.basecamp.auth import new_user_work
 from app.views import auth, purchase, render_po_template, user
 from app.views.api.v1 import purchases as purchases_api
 from app.views.filters import format_currency, pad_zeros, copyright_year
@@ -13,6 +15,7 @@ import settings
 
 # Instantiates a client
 client = google.cloud.logging.Client()
+ndbClient = ndb.Client()
 
 # Retrieves a Cloud Logging handler based on the environment
 # you're running in and integrates the handler with the
@@ -65,7 +68,10 @@ def basecamp_callback():
             client_secret=settings.BASECAMP_CLIENT_SECRET,
         )
 
-        return token, 200
+        with ndbClient.context():
+            new_user_work(token)
+
+        return redirect("/"), 200
     except Exception as e:
         print(f"Exception in basecamp_callback: {e}")
         import traceback
