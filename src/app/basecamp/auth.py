@@ -34,6 +34,7 @@ from app.domain.user import get_current_ndb_user
 
 authorization_url = "https://launchpad.37signals.com/authorization.json"
 projects_url = "https://3.basecampapi.com/{account_id}/projects.json"
+my_personal_info = "https://3.basecampapi.com/{account_id}/my/profile.json"
 
 
 def new_user_work(token):
@@ -90,8 +91,15 @@ def new_user_work(token):
     if todos_url == "":
         raise ValueError("Purchase Orders todo list not found in todoset")
 
+    my_info_resp = requests.get(
+        my_personal_info.format(account_id=circle_project_id),
+        headers={"Authorization": f"Bearer {access_token}"},
+    ).json()
+    assignee_id = my_info_resp["id"]
+
     user = get_current_ndb_user()
     user.basecamp_refresh_token = refresh_token
     user.basecamp_access_token = access_token
     user.basecamp_todos_url = todos_url
+    user.basecamp_assignee_id = assignee_id
     user.put()

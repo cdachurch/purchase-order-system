@@ -26,6 +26,7 @@ class User(BaseModel):
     basecamp_access_token = ndb.StringProperty()
     basecamp_refresh_token = ndb.StringProperty()
     basecamp_todos_url = ndb.StringProperty()
+    basecamp_assignee_id = ndb.IntegerProperty()
 
     @classmethod
     def build_key(cls, user_id):
