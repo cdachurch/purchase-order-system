@@ -1,6 +1,7 @@
 """
 Purchase order model
 """
+
 from google.cloud import ndb
 
 from app.models import BaseModel
@@ -29,6 +30,8 @@ class PurchaseOrder(BaseModel):
     is_addressed = ndb.ComputedProperty(
         lambda self: self.is_approved or self.is_denied or self.is_cancelled
     )
+
+    todo_url = ndb.StringProperty()
 
     VALID_ORDER_DIRECTIONS = ["ASC", "DESC"]
 

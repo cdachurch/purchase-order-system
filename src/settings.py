@@ -54,6 +54,9 @@ APPROVAL_ADMINS = [
     "cbayles@cdac.ca",
 ]
 
+APPROVAL_ADMINS_BASECAMP_IDS = [27492694]  # Graham!
+FINANCE_ADMINS_BASECAMP_IDS = [27492694]  # Graham!
+
 FINANCE_ADMINS = [
     "dwiebe@cdac.ca",
     # "gdholtslander@cdac.ca",
