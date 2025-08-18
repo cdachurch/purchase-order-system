@@ -2,9 +2,11 @@
 Interacting with Basecamp todos
 """
 
-# Base url for interacting with the Purchase Orders "basecamp" or whatever
+from urllib import response
 import requests
 
+from app.basecamp.auth import refresh_access_token
+from app.domain.user import get_current_ndb_user
 import settings
 
 
@@ -14,11 +16,19 @@ def create_todo_item(todo_url, token, content, description):
     data = {
         "content": content,
         "description": description,
-        # FIXME: Why didn't this work?
         "assignee_ids": settings.APPROVAL_ADMINS_BASECAMP_IDS,
         "notify": True,
     }
+
     response = requests.post(todo_url, headers=headers, json=data).json()
+    if "error" in response and response["error"].startswith(
+        "OAuth token expired (old age)"
+    ):
+        user = get_current_ndb_user()
+        token = refresh_access_token(user)
+        # Try the request again with the new token
+        return create_todo_item(todo_url, token, content, description)
+
     if "id" not in response:
         raise ValueError("Failed to create todo item")
 
@@ -37,5 +47,13 @@ def update_todo_item(todo_url, token, content, description):
     }
 
     resp = requests.put(todo_url, headers=headers, json=data)
+    if "error" in response and response["error"].startswith(
+        "OAuth token expired (old age)"
+    ):
+        user = get_current_ndb_user()
+        token = refresh_access_token(user)
+        # Try the request again with the new token
+        return update_todo_item(todo_url, token, content, description)
+
     if resp.status_code != 200:
         raise ValueError("Failed to update todo item")

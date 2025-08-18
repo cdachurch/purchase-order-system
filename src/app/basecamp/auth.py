@@ -29,12 +29,15 @@ Example response:
 """
 import requests
 
+import settings
+
 from app.domain.user import get_current_ndb_user
 
 
 authorization_url = "https://launchpad.37signals.com/authorization.json"
 projects_url = "https://3.basecampapi.com/{account_id}/projects.json"
 my_personal_info = "https://3.basecampapi.com/{account_id}/my/profile.json"
+refresh_token_url = "https://launchpad.37signals.com/authorization/token?type=refresh&refresh_token={refresh_token}&client_id={client_id}&client_secret={client_secret}"
 
 
 def new_user_work(token):
@@ -103,3 +106,30 @@ def new_user_work(token):
     user.basecamp_todos_url = todos_url
     user.basecamp_assignee_id = assignee_id
     user.put()
+
+
+def refresh_access_token(user):
+    """
+    Refresh the Basecamp access token for the given user.
+    """
+    refresh_token = user.basecamp_refresh_token
+    if not refresh_token:
+        raise ValueError("No refresh token available")
+
+    # Make a request to refresh the access token
+    response = requests.post(
+        refresh_token_url.format(
+            refresh_token=refresh_token,
+            client_id=settings.BASECAMP_CLIENT_ID,
+            client_secret=settings.BASECAMP_CLIENT_SECRET,
+        )
+    ).json()
+
+    if "access_token" not in response:
+        raise ValueError("Failed to refresh access token")
+    print(response)
+
+    user.basecamp_access_token = response["access_token"]
+    user.put()
+
+    return response["access_token"]
