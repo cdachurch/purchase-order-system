@@ -2,7 +2,6 @@
 Interacting with Basecamp todos
 """
 
-from urllib import response
 import requests
 
 from app.basecamp.auth import refresh_access_token
@@ -35,18 +34,18 @@ def create_todo_item(todo_url, token, content, description):
     return response["url"]
 
 
-def update_todo_item(todo_url, token, content, description):
+def update_todo_item(todo_url, token, content, description, assignee_id):
     """Updates a todo item in Basecamp"""
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     data = {
         "content": content,
         "description": description,
-        # TODO: Assign to the PO creator and the finance admins
-        "assignee_ids": settings.APPROVAL_ADMINS_BASECAMP_IDS,
+        "assignee_ids": [assignee_id] + settings.FINANCE_ADMINS_BASECAMP_IDS,
         "notify": True,
+        "completed": False,
     }
 
-    resp = requests.put(todo_url, headers=headers, json=data)
+    response = requests.put(todo_url, headers=headers, json=data)
     if "error" in response and response["error"].startswith(
         "OAuth token expired (old age)"
     ):
@@ -55,5 +54,5 @@ def update_todo_item(todo_url, token, content, description):
         # Try the request again with the new token
         return update_todo_item(todo_url, token, content, description)
 
-    if resp.status_code != 200:
+    if response.status_code != 200:
         raise ValueError("Failed to update todo item")

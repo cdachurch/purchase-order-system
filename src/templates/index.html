@@ -8,8 +8,22 @@
   <a href="/purchase/create/">Create a new PO here</a>.
 </p>
 <p>Here's the <a href="/purchase/">list of purchase orders</a>.</p>
-{% else %}
+{% if not basecampEnabled %}
+<h2>
+  <a href="{{ url_for('basecamp_login') }}">Login with Basecamp</a>
+</h2>
+<p>
+  As of August, 2025, the PO system can no longer send emails. Instead, we are
+  now going to start sending messages using Basecamp. Please click the link
+  above to link your Basecamp account with your PO system account so that the
+  system can modify todos in Basecamp on your behalf 😎 If you have questions
+  about this, please reach out to Sherry or Des, who can pass your concerns on
+  to the developers.
+</p>
+<p>
+  Note: If you try to make a PO without linking your Basecamp it
+  <em>will not work</em>!
+</p>
+{% endif %} {% else %}
 <p>Please <a href="{{ login }}">log in</a> to use this system.</p>
-{% endif %}
-<a href="{{ url_for('basecamp_login') }}">Login with Basecamp</a>
-{% endblock %}
+{% endif %} {% endblock %}

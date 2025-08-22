@@ -2,6 +2,7 @@
 Purchases api endpoints
 """
 
+from settings import SERVER_ADDRESS
 from flask import Blueprint
 from google.cloud import ndb
 
@@ -83,26 +84,20 @@ def invoice_po(po_id):
 
 
 def send_email(to, how, po_entity):
-    supplier = po_entity.supplier
-    product = po_entity.product
-    price = po_entity.price
     pretty_po_id = po_entity.pretty_po_id
-    if all([supplier, product, price, pretty_po_id]):
+    approval_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    if all([approval_link, pretty_po_id]):
         if how == API_CONSTANTS.ACCEPTED:
             send_message(
                 API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(
-                    price,
                     ppoid=str(pretty_po_id).zfill(4),
-                    supplier=supplier,
-                    product=product,
+                    approval_link=approval_link,
                 ),
             )
         elif how == API_CONSTANTS.DENIED:
             send_message(
                 API_CONSTANTS.DENIED_EMAIL_HTML.format(
-                    price,
                     ppoid=str(pretty_po_id).zfill(4),
-                    supplier=supplier,
-                    product=product,
+                    approval_link=approval_link,
                 ),
             )

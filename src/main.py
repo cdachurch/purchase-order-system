@@ -6,6 +6,7 @@ import google.cloud.logging
 from google.cloud import ndb
 
 from app.basecamp.auth import new_user_work
+from app.domain.user import get_current_ndb_user
 from app.views import auth, purchase, render_po_template, user
 from app.views.api.v1 import purchases as purchases_api
 from app.views.filters import format_currency, pad_zeros, copyright_year
@@ -36,7 +37,15 @@ app.secret_key = settings.SESSION_SECRET
 
 @app.route("/")
 def index():
-    return render_po_template("index.html", **(get_log_in_out_links_and_user()))
+    ndbUser = None
+    with ndbClient.context():
+        ndbUser = get_current_ndb_user()
+    kwargs = {
+        "basecampEnabled": ndbUser is not None and ndbUser.basecamp_access_token,
+        **(get_log_in_out_links_and_user()),
+    }
+
+    return render_po_template("index.html", **kwargs)
 
 
 app.register_blueprint(auth.bp)

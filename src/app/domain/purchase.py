@@ -40,8 +40,9 @@ def approve_purchase_order(po_entity, approver):
     update_todo_item(
         po_entity.todo_url,
         user.basecamp_access_token,
-        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ✅",
         f"<p>This PO is approved ✅ - make sure to get your invoice to Des once you have one.</p>",
+        user.basecamp_assignee_id,
     )
     return po_entity
 
@@ -61,8 +62,9 @@ def cancel_purchase_order(po_entity):
     update_todo_item(
         po_entity.todo_url,
         user.basecamp_access_token,
-        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser} 🚫",
         f"<p>This PO has been cancelled 🚫</p>",
+        user.basecamp_assignee_id,
     )
 
 
@@ -147,8 +149,9 @@ def deny_purchase_order(po_entity):
     update_todo_item(
         po_entity.todo_url,
         user.basecamp_access_token,
-        f"#{po_entity.pretty_po_id} for {po_entity.purchaser}",
+        f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ❌",
         f"<p>This PO has been denied ❌</p>",
+        user.basecamp_assignee_id,
     )
 
 
@@ -177,35 +180,13 @@ def send_admin_email_for_new_po(po_id):
     if not po_dict:
         raise ValueError("There is no purchase order for this po_id: %s" % po_id)
 
-    user = get_current_user()
-    username = user["email"] if user["email"].find("@") else user["email"] + "@cdac.ca"
-    real_name = user["name"]
-    supplier = po_dict["supplier"]
-    product = po_dict["product"]
-    price = po_dict["price"]
     approval_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_id)
 
-    subject = "%s has made a purchase order request" % real_name
-
-    if ENVIRONMENT == "DEMO":
-        subject += " on %s" % ENVIRONMENT
-
     email_template = """
-        <p>Hello,</p>
-        <p>{real_name} has made a purchase order request for the following:</p>
-        <ul>
-            <li>Supplier: {supplier}</li>
-            <li>Product: {product}</li>
-            <li>Price: ${:,.2f}</li>
-        </ul>
-        <p>To approve or deny this request, click <a href='{approval_link}'>here</a>.</p>
-        <p>Thank you, and have a great day!</p>
+        <p>Purchase order <a href='{approval_link}'>#{ppo_id}</a> created</p>
     """.format(
-        price,
-        real_name=real_name,
-        supplier=supplier,
-        product=product,
         approval_link=approval_link,
+        ppo_id=str(po_dict["pretty_po_id"]).zfill(4),
     )
 
     send_message(email_template)
