@@ -16,6 +16,14 @@ SESSION_SECRET_PROD = ""
 
 SENDGRID_KEY = ""
 
+# Get these from https://launchpad.37signals.com/integrations/17861
+BASECAMP_CLIENT_ID_PROD = ""
+BASECAMP_CLIENT_SECRET_PROD = ""
+
 # Get these from https://launchpad.37signals.com/integrations/17272
-BASECAMP_CLIENT_ID = ""
-BASECAMP_CLIENT_SECRET = ""
+BASECAMP_CLIENT_ID_DEMO = ""
+BASECAMP_CLIENT_SECRET_DEMO = ""
+
+# Get these from https://launchpad.37signals.com/integrations/17860
+BASECAMP_CLIENT_ID_LOCAL = ""
+BASECAMP_CLIENT_SECRET_LOCAL = ""
