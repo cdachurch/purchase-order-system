@@ -80,7 +80,7 @@ def basecamp_callback():
         with ndbClient.context():
             new_user_work(token)
 
-        return redirect("/"), 200
+        return redirect("/"), 302
     except Exception as e:
         print(f"Exception in basecamp_callback: {e}")
         import traceback
