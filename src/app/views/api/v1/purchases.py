@@ -2,12 +2,9 @@
 Purchases api endpoints
 """
 
-from settings import SERVER_ADDRESS
 from flask import Blueprint
 from google.cloud import ndb
 
-from app.basecamp.chatbot import send_message
-from app.views.api.v1 import API_CONSTANTS
 from app.domain.purchase import (
     approve_purchase_order,
     cancel_purchase_order,
@@ -40,7 +37,6 @@ def accept_po(po_id):
         if po_entity:
             approver, _, _ = check_and_return_user()
             approve_purchase_order(po_entity, approver["name"])
-            send_email(po_entity.purchaser, API_CONSTANTS.ACCEPTED, po_entity)
             return {"data": {}}
 
 
@@ -65,7 +61,6 @@ def deny_po(po_id):
         po_entity = get_purchase_order_entity(po_id)
         if po_entity:
             deny_purchase_order(po_entity)
-            send_email(po_entity.purchaser, API_CONSTANTS.DENIED, po_entity)
             return {"status": 200}
 
 
@@ -81,23 +76,3 @@ def invoice_po(po_id):
             po_entity.is_invoiced = not po_entity.is_invoiced
             po_entity.put()
             return {"status": 200}
-
-
-def send_email(to, how, po_entity):
-    pretty_po_id = po_entity.pretty_po_id
-    approval_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
-    if all([approval_link, pretty_po_id]):
-        if how == API_CONSTANTS.ACCEPTED:
-            send_message(
-                API_CONSTANTS.ACCEPTED_EMAIL_HTML.format(
-                    ppoid=str(pretty_po_id).zfill(4),
-                    approval_link=approval_link,
-                ),
-            )
-        elif how == API_CONSTANTS.DENIED:
-            send_message(
-                API_CONSTANTS.DENIED_EMAIL_HTML.format(
-                    ppoid=str(pretty_po_id).zfill(4),
-                    approval_link=approval_link,
-                ),
-            )
