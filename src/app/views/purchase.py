@@ -138,4 +138,4 @@ def create_purchase_post():
         with client.context():
             send_admin_email_for_new_po(po_id)
 
-    return create_purchase(**context)
+    return redirect(f"/purchase/{po_id}/")

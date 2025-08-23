@@ -1,12 +1,6 @@
 {% extends 'base.html' %}{% block title %}Create a new purchase order{% endblock
 %} {% block create_active %} class="active"{% endblock %} {% block content %}
 <h2>Create a new purchase order <small id="ppoid">{{ form._ppoid }}</small></h2>
-{% if success %}
-<p>
-  Great, your purchase order has been created! You should hear back soon (by
-  email) whether your order has been accepted or denied.
-</p>
-{% else %}
 <label>
   <input
     type="checkbox"
