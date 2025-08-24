@@ -139,7 +139,7 @@ def create_purchase_order(
     new_po.put()
 
     message_template = """
-        <p>Purchase order <a href='{perma_link}'>#{ppo_id}</a> created</p>
+        <p>Purchase order <a href='{perma_link}'>#{ppo_id}</a> created 🆕</p>
     """.format(
         perma_link=perma_link,
         ppo_id=str(new_po.pretty_po_id).zfill(4),
