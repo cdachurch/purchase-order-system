@@ -27,3 +27,8 @@ BASECAMP_CLIENT_SECRET_DEMO = ""
 # Get these from https://launchpad.37signals.com/integrations/17860
 BASECAMP_CLIENT_ID_LOCAL = ""
 BASECAMP_CLIENT_SECRET_LOCAL = ""
+
+# Okay, this one is a bit trickier to get. You'll need to authenticate with the API
+# and then I think there's a "get chatbots" api you can call that'll give you
+# a "lines" url. When you POST to that url, it sends messages to the chat.
+BASECAMP_CAMPFIRE_URL = ""
