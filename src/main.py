@@ -86,4 +86,7 @@ def basecamp_callback():
         import traceback
 
         traceback.print_exc()
-        return f"Error: {str(e)}", 500
+        return (
+            f"Error: {str(e)} - please go back to <a href='/'>the homepage</a> and try to connect again",
+            500,
+        )
