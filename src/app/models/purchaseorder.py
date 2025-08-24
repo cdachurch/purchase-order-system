@@ -21,11 +21,12 @@ class PurchaseOrder(BaseModel):
     approved_by = ndb.StringProperty()
     account_code = ndb.StringProperty()
     account_code_str = ndb.ComputedProperty(lambda self: str(self.account_code))
-    # these default to False (perfect!)
-    is_approved = ndb.BooleanProperty()
-    is_denied = ndb.BooleanProperty()
-    is_invoiced = ndb.BooleanProperty()
-    is_cancelled = ndb.BooleanProperty()
+    # these default to False (perfect!) <- this is no longer true, these start as Null unless
+    # explicitly set (or if the default kwarg is set)
+    is_approved = ndb.BooleanProperty(default=False)
+    is_denied = ndb.BooleanProperty(default=False)
+    is_invoiced = ndb.BooleanProperty(default=False)
+    is_cancelled = ndb.BooleanProperty(default=False)
 
     is_addressed = ndb.ComputedProperty(
         lambda self: self.is_approved or self.is_denied or self.is_cancelled
