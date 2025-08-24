@@ -36,6 +36,10 @@ def create_todo_item(todo_url, token, content, description):
 
 def update_todo_item(todo_url, token, content, description, assignee_id):
     """Updates a todo item in Basecamp"""
+    if not token:
+        # If the caller didn't pass a token, don't try updating the todo. This person
+        # needs to connect to Basecamp, it seems!
+        return
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     data = {
         "content": content,
