@@ -130,5 +130,6 @@ def create_purchase_post():
             "_ppoid": post_body.get("_ppoid"),
         }
         context["errors"] = [str(ve)]
+        return create_purchase(**context)
 
     return redirect(f"/purchase/{po_id}/")
