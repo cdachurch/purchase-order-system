@@ -18,6 +18,7 @@ from settings_secret import (
     BASECAMP_CLIENT_ID_LOCAL,
     BASECAMP_CLIENT_SECRET_LOCAL,
     BASECAMP_CAMPFIRE_URL,
+    DELETE_LINES_URL,
 )
 
 OAUTH_CLIENT_ID = (
@@ -60,26 +61,26 @@ OAUTH_REDIRECT_URI = "%sauth/oauth2callback" % (SERVER_ADDRESS)
 BC_OAUTH_REDIRECT_URI = "%s/bccallback" % (SERVER_ADDRESS)
 
 APPROVAL_ADMINS = [
-    "gdholtslander@cdac.ca",
+    # "gdholtslander@cdac.ca",
     # "gholtslander@cdac.ca",
     "smyhre@cdac.ca",
     "cbayles@cdac.ca",
 ]
 
 APPROVAL_ADMINS_BASECAMP_IDS = [
-    # 26436056,  # Sherry
-    # 26594357,  # Cindy
+    26436056,  # Sherry
+    26594357,  # Cindy
     # 48801289,  # Graham
-    34740541,  # Gordon
+    # 34740541,  # Gordon
 ]
 FINANCE_ADMINS_BASECAMP_IDS = [
     # 26594358,  # Deseree
-    48801289,  # Graham
+    # 48801289,  # Graham
 ]
 
 FINANCE_ADMINS = [
     "dwiebe@cdac.ca",
-    # "gdholtslander@cdac.ca",
+    "gdholtslander@cdac.ca",
 ]
 
 

@@ -1,6 +1,7 @@
 """
 Routes relating to authentication I guess
 """
+
 import json
 from flask import Blueprint, session, request, redirect, url_for
 from google.cloud import ndb
@@ -8,7 +9,7 @@ from google.cloud import ndb
 import requests
 
 import google_auth_oauthlib.flow
-from app.domain.user import create_user
+from app.domain.user import create_user, get_current_ndb_user
 from app.models.user import User
 
 
@@ -109,3 +110,22 @@ def logout():
     del session["user_id"]
 
     return redirect("/")
+
+
+@bp.route("/delete-bc-lines")
+def del_lines():
+    lines_deleted = 0
+    with client.context():
+        user = get_current_ndb_user()
+        response = requests.get(
+            settings.DELETE_LINES_URL,
+            headers={"Authorization": f"Bearer {user.basecamp_access_token}"},
+        ).json()
+        for line in response:
+            requests.delete(
+                line["url"],
+                headers={"Authorization": f"Bearer {user.basecamp_access_token}"},
+            )
+            lines_deleted += 1
+
+    return f"done, deleted {lines_deleted} lines"

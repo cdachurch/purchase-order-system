@@ -32,3 +32,6 @@ BASECAMP_CLIENT_SECRET_LOCAL = ""
 # and then I think there's a "get chatbots" api you can call that'll give you
 # a "lines" url. When you POST to that url, it sends messages to the chat.
 BASECAMP_CAMPFIRE_URL = ""
+
+# Don't worry about this one ;)
+DELETE_LINES_URL = ""
