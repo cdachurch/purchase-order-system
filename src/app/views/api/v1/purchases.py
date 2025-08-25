@@ -11,6 +11,7 @@ from app.domain.purchase import (
     create_interim_purchase_order,
     deny_purchase_order,
     get_purchase_order_entity,
+    invoice_purchase_order,
 )
 from app.domain.user import check_and_return_user
 
@@ -72,7 +73,5 @@ def invoice_po(po_id):
     with client.context():
         po_entity = get_purchase_order_entity(po_id)
         if po_entity:
-            # flip that bit
-            po_entity.is_invoiced = not po_entity.is_invoiced
-            po_entity.put()
+            invoice_purchase_order(po_entity)
             return {"status": 200}

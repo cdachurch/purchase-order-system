@@ -66,7 +66,7 @@ def cancel_purchase_order(po_entity):
     logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
 
-    icon = "🚫" if is_being_canceled else "💌"
+    icon = "🚫" if is_being_canceled else "🔙"
     prefix = "" if is_being_canceled else "un"
     perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
     user = get_current_ndb_user()
@@ -187,6 +187,37 @@ def deny_purchase_order(po_entity):
         )
     send_message(
         '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> denied ❌</p>'.format(
+            perma_link=perma_link,
+            ppo_id=str(po_entity.pretty_po_id).zfill(4),
+        )
+    )
+
+
+def invoice_purchase_order(po_entity):
+    """Mark a purchase order as invoiced"""
+    if not isinstance(po_entity, PurchaseOrder):
+        raise ValueError("The purchase order entity must be passed to this function")
+
+    po_entity.is_invoiced = not po_entity.is_invoiced
+    logging.info(
+        "po# %s (%s) was just invoiced", po_entity.po_id, po_entity.pretty_po_id
+    )
+    po_entity.put()
+    user = get_current_ndb_user()
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    if not po_entity.is_invoiced:
+        # Return early, don't send an update for removing the invoice
+        return
+    if po_entity.todo_url:
+        update_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+            f"#{po_entity.pretty_po_id} for {po_entity.purchaser} 💌",
+            f"<p><a href='{perma_link}'>This PO</a> has been invoiced 💌</p>",
+            user.basecamp_assignee_id,
+        )
+    send_message(
+        '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> invoiced 💌</p>'.format(
             perma_link=perma_link,
             ppo_id=str(po_entity.pretty_po_id).zfill(4),
         )
