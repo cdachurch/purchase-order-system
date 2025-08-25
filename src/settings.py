@@ -74,7 +74,7 @@ APPROVAL_ADMINS_BASECAMP_IDS = [
     # 34740541,  # Gordon
 ]
 FINANCE_ADMINS_BASECAMP_IDS = [
-    # 26594358,  # Deseree
+    26594358,  # Deseree
     # 48801289,  # Graham
 ]
 
