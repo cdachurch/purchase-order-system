@@ -80,7 +80,7 @@ FINANCE_ADMINS_BASECAMP_IDS = [
 
 FINANCE_ADMINS = [
     "dwiebe@cdac.ca",
-    "gdholtslander@cdac.ca",
+    # "gdholtslander@cdac.ca",
 ]
 
 
