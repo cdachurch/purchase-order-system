@@ -45,8 +45,7 @@ def approve_purchase_order(po_entity, approver):
             user.basecamp_access_token,
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ✅",
             f"<p><a href='{perma_link}'>This PO</a> is approved ✅ - make sure to get your invoice to Des once you have one.</p>",
-            [po_entity.purchaser_basecamp_assignee_id]
-            + settings.FINANCE_ADMINS_BASECAMP_IDS,
+            [po_entity.purchaser_basecamp_assignee_id],
         )
     send_message(
         '<p>Purchase order <a href="{approval_link}">#{ppo_id}</a> approved ✅</p>'.format(
@@ -78,8 +77,7 @@ def cancel_purchase_order(po_entity):
             user.basecamp_access_token,
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} {icon}",
             f"<p><a href='{perma_link}'>This PO</a> has been {prefix}cancelled {icon}</p>",
-            [po_entity.purchaser_basecamp_assignee_id]
-            + settings.FINANCE_ADMINS_BASECAMP_IDS,
+            [po_entity.purchaser_basecamp_assignee_id],
         )
     send_message(
         '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> {prefix}cancelled {icon}</p>'.format(
@@ -187,7 +185,7 @@ def deny_purchase_order(po_entity):
             user.basecamp_access_token,
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ❌",
             f"<p><a href='{perma_link}'>This PO</a> has been denied ❌</p>",
-            [user.basecamp_assignee_id] + settings.FINANCE_ADMINS_BASECAMP_IDS,
+            [po_entity.purchaser_basecamp_assignee_id],
         )
     send_message(
         '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> denied ❌</p>'.format(
@@ -218,7 +216,7 @@ def invoice_purchase_order(po_entity):
             user.basecamp_access_token,
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} 💌",
             f"<p><a href='{perma_link}'>This PO</a> has been invoiced 💌</p>",
-            settings.FINANCE_ADMINS_BASECAMP_IDS,
+            [],
         )
     send_message(
         '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> invoiced 💌</p>'.format(
