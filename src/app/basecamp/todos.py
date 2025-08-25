@@ -34,7 +34,7 @@ def create_todo_item(todo_url, token, content, description):
     return response["url"]
 
 
-def update_todo_item(todo_url, token, content, description, assignee_id):
+def update_todo_item(todo_url, token, content, description, assignee_ids):
     """Updates a todo item in Basecamp"""
     if not token:
         # If the caller didn't pass a token, don't try updating the todo. This person
@@ -44,7 +44,7 @@ def update_todo_item(todo_url, token, content, description, assignee_id):
     data = {
         "content": content,
         "description": description,
-        "assignee_ids": [assignee_id] + settings.FINANCE_ADMINS_BASECAMP_IDS,
+        "assignee_ids": assignee_ids,
         "notify": True,
         "completed": False,
     }

@@ -17,6 +17,10 @@ class User(BaseModel):
     Perhaps the last thing it was useful for was a way to hang onto an email address
     that didn't include "@cdac.ca"...  If we had a "superadmin" area we may find it useful to
     have the list of all users who have signed in and when they were created and such.
+
+    N.B. part deux: this model is no longer cruft, and is in fact the crux of the new
+    Basecamp system. The user's associated tokens, urls, and ids are now stored on their
+    User ndb entity, making this model useful once more. Huzzah!
     """
 
     user_id = ndb.StringProperty()

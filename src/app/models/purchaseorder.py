@@ -33,6 +33,7 @@ class PurchaseOrder(BaseModel):
     )
 
     todo_url = ndb.StringProperty()
+    purchaser_basecamp_assignee_id = ndb.IntegerProperty()
 
     VALID_ORDER_DIRECTIONS = ["ASC", "DESC"]
 
