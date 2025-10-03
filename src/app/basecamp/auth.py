@@ -27,6 +27,7 @@ Example response:
 	]
 }
 """
+import logging
 import requests
 
 import settings
@@ -53,6 +54,7 @@ def new_user_work(token):
     ).json()
 
     circle_project_id = 0
+    logging.info(f"BC auth response: {auth_resp}")
     for account in auth_resp["accounts"]:
         if account["name"] == "CircleYXE":
             circle_project_id = account["id"]
@@ -67,6 +69,7 @@ def new_user_work(token):
         headers={"Authorization": f"Bearer {access_token}"},
     ).json()
 
+    logging.info(f"BC projects response: {projects_resp}")
     todoset_url = ""
     for item in projects_resp[0]["dock"]:
         if item["name"] == "todoset":
@@ -80,11 +83,14 @@ def new_user_work(token):
         todoset_url, headers={"Authorization": f"Bearer {access_token}"}
     ).json()
 
+    logging.info(f"BC todoset response: {todoset_resp}")
+
     todolists_resp = requests.get(
         todoset_resp["todolists_url"],
         headers={"Authorization": f"Bearer {access_token}"},
     ).json()
 
+    logging.info(f"BC todolists response: {todolists_resp}")
     todos_url = ""
     for todolist in todolists_resp:
         if todolist["name"] == "Purchase Orders":
@@ -98,6 +104,8 @@ def new_user_work(token):
         my_personal_info.format(account_id=circle_project_id),
         headers={"Authorization": f"Bearer {access_token}"},
     ).json()
+
+    logging.info(f"BC my info response: {my_info_resp}")
     assignee_id = my_info_resp["id"]
 
     user = get_current_ndb_user()
