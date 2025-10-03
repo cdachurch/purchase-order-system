@@ -6,7 +6,7 @@ import google.cloud.logging
 from google.cloud import ndb
 
 from app.basecamp.auth import new_user_work
-from app.domain.user import get_current_ndb_user
+from app.domain.user import get_current_user, get_current_ndb_user
 from app.views import auth, purchase, render_po_template, user
 from app.views.api.v1 import purchases as purchases_api
 from app.views.filters import format_currency, pad_zeros, copyright_year
@@ -65,6 +65,9 @@ oauth.register(
 
 @app.route("/bclogin")
 def basecamp_login():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("auth.oauth_login"))
     redirect_uri = url_for("basecamp_callback", _external=True)
     return oauth.basecamp.authorize_redirect(redirect_uri=redirect_uri)
 
