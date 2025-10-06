@@ -71,10 +71,13 @@ def new_user_work(token):
 
     logging.info(f"BC projects response: {projects_resp}")
     todoset_url = ""
-    for item in projects_resp[0]["dock"]:
-        if item["name"] == "todoset":
-            todoset_url = item["url"]
-            break
+    for project in projects_resp:
+        if project["name"] != "PO Connection":
+            continue
+        for item in project["dock"]:
+            if item["name"] == "todoset":
+                todoset_url = item["url"]
+                break
 
     if todoset_url == "":
         raise ValueError("todoset project not found in Basecamp projects")
