@@ -60,3 +60,25 @@ def update_todo_item(todo_url, token, content, description, assignee_ids):
 
     if response.status_code != 200:
         raise ValueError("Failed to update todo item")
+
+
+def complete_todo_item(todo_url, token):
+    """Marks a todo item as done in Basecamp"""
+    if not token:
+        # If the caller didn't pass a token, don't try updating the todo. This person
+        # needs to connect to Basecamp, it seems!
+        return
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    todo_url = todo_url.replace(".json", "/completion.json")
+    response = requests.post(todo_url, headers=headers)
+    if "error" in response and response["error"].startswith(
+        "OAuth token expired (old age)"
+    ):
+        user = get_current_ndb_user()
+        token = refresh_access_token(user)
+        # Try the request again with the new token
+        return complete_todo_item(todo_url, token)
+
+    if response.status_code != 200:
+        raise ValueError("Failed to complete todo item")
