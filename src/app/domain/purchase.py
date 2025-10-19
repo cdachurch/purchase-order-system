@@ -9,7 +9,7 @@ import uuid
 
 from html_sanitizer import Sanitizer
 
-from app.basecamp.todos import create_todo_item, update_todo_item
+from app.basecamp.todos import create_todo_item, update_todo_item, complete_todo_item
 from app.domain.user import get_current_ndb_user, get_current_user
 from app.models.purchaseorder import PurchaseOrder
 from app.basecamp.chatbot import send_message
@@ -44,7 +44,7 @@ def approve_purchase_order(po_entity, approver):
             po_entity.todo_url,
             user.basecamp_access_token,
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ✅",
-            f"<p><a href='{perma_link}'>This PO</a> is approved ✅ - make sure to get your invoice to Des once you have one.</p>",
+            f"<p><a href='{perma_link}'>This PO</a> is approved ✅ - provide the invoice for this PO to the Finance Manager as soon as it is received.</p>",
             [po_entity.purchaser_basecamp_assignee_id],
         )
     send_message(
@@ -217,6 +217,10 @@ def invoice_purchase_order(po_entity):
             f"#{po_entity.pretty_po_id} for {po_entity.purchaser} 💌",
             f"<p><a href='{perma_link}'>This PO</a> has been invoiced 💌</p>",
             [],
+        )
+        complete_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
         )
     send_message(
         '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> invoiced 💌</p>'.format(

@@ -80,5 +80,5 @@ def complete_todo_item(todo_url, token):
         # Try the request again with the new token
         return complete_todo_item(todo_url, token)
 
-    if response.status_code != 200:
+    if response.status_code != 204:
         raise ValueError("Failed to complete todo item")
