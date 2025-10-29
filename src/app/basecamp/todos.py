@@ -2,6 +2,7 @@
 Interacting with Basecamp todos
 """
 
+import logging
 import requests
 
 from app.basecamp.auth import refresh_access_token
@@ -50,13 +51,15 @@ def update_todo_item(todo_url, token, content, description, assignee_ids):
     }
 
     response = requests.put(todo_url, headers=headers, json=data)
-    if "error" in response and response["error"].startswith(
+    res_json = response.json()
+    if "error" in res_json and res_json["error"].startswith(
         "OAuth token expired (old age)"
     ):
+        logging.info("token expired, refreshing...")
         user = get_current_ndb_user()
         token = refresh_access_token(user)
         # Try the request again with the new token
-        return update_todo_item(todo_url, token, content, description)
+        return update_todo_item(todo_url, token, content, description, assignee_ids)
 
     if response.status_code != 200:
         raise ValueError("Failed to update todo item")
@@ -72,13 +75,11 @@ def complete_todo_item(todo_url, token):
 
     todo_url = todo_url.replace(".json", "/completion.json")
     response = requests.post(todo_url, headers=headers)
-    if "error" in response and response["error"].startswith(
-        "OAuth token expired (old age)"
-    ):
-        user = get_current_ndb_user()
-        token = refresh_access_token(user)
-        # Try the request again with the new token
-        return complete_todo_item(todo_url, token)
+    # Note, I don't think this endpoint returns JSON, so I don't know if we can refresh
+    # the access token if this fails ... BUT, theoretically, this should only ever be called
+    # after updating a todo item, which _can_ refresh the token. I guess this is just
+    # a note for future me: if you start calling this function from somewhere by itself,
+    # you may have to worry about figuring this out :D
 
     if response.status_code != 204:
         raise ValueError("Failed to complete todo item")

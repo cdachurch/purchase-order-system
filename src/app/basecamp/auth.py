@@ -138,7 +138,7 @@ def refresh_access_token(user):
 
     if "access_token" not in response:
         raise ValueError("Failed to refresh access token")
-    print(response)
+    logging.info("successfully refreshed {user.name}'s access token")
 
     user.basecamp_access_token = response["access_token"]
     user.put()
