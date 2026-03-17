@@ -8,7 +8,6 @@ from google.cloud import ndb
 from app.domain.purchase import (
     create_purchase_order,
     get_purchase_order_to_dict,
-    send_admin_email_for_new_po,
 )
 from app.views import render_po_template
 from app.workflow.user import get_log_in_out_links_and_user
@@ -131,11 +130,6 @@ def create_purchase_post():
             "_ppoid": post_body.get("_ppoid"),
         }
         context["errors"] = [str(ve)]
+        return create_purchase(**context)
 
-    if po_id:
-        context["success"] = True
-        context["po_id"] = po_id
-        with client.context():
-            send_admin_email_for_new_po(po_id)
-
-    return create_purchase(**context)
+    return redirect(f"/purchase/{po_id}/")

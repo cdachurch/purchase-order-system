@@ -9,14 +9,14 @@ import uuid
 
 from html_sanitizer import Sanitizer
 
-from app.domain.user import get_current_user
+from app.basecamp.todos import create_todo_item, update_todo_item, complete_todo_item
+from app.domain.user import get_current_ndb_user, get_current_user
 from app.models.purchaseorder import PurchaseOrder
-from app.utility.mailer import send_message
+from app.basecamp.chatbot import send_message
 from settings import (
-    APPROVAL_ADMINS,
-    ENVIRONMENT,
     SERVER_ADDRESS,
 )
+import settings
 
 
 def approve_purchase_order(po_entity, approver):
@@ -35,7 +35,24 @@ def approve_purchase_order(po_entity, approver):
     )
 
     po_entity.put()
-    return po_entity
+
+    user = get_current_ndb_user()
+
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    if po_entity.todo_url and po_entity.purchaser_basecamp_assignee_id:
+        update_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+            f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ✅",
+            f"<p><a href='{perma_link}'>This PO</a> is approved ✅ - provide the invoice for this PO to the Finance Manager as soon as it is received.</p>",
+            [po_entity.purchaser_basecamp_assignee_id],
+        )
+    send_message(
+        '<p>Purchase order <a href="{approval_link}">#{ppo_id}</a> approved ✅</p>'.format(
+            approval_link=perma_link,
+            ppo_id=str(po_entity.pretty_po_id).zfill(4),
+        )
+    )
 
 
 def cancel_purchase_order(po_entity):
@@ -43,11 +60,33 @@ def cancel_purchase_order(po_entity):
     if not isinstance(po_entity, PurchaseOrder):
         raise ValueError("The purchase order entity must be passed to this function")
 
+    is_being_canceled = po_entity.is_cancelled == False
     po_entity.is_cancelled = not po_entity.is_cancelled
     po_entity.is_approved = False
     po_entity.is_denied = False
     logging.info("po# %s (%s) was cancelled", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
+
+    icon = "🚫" if is_being_canceled else "🔙"
+    prefix = "" if is_being_canceled else "un"
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    user = get_current_ndb_user()
+    if po_entity.todo_url and po_entity.purchaser_basecamp_assignee_id:
+        update_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+            f"#{po_entity.pretty_po_id} for {po_entity.purchaser} {icon}",
+            f"<p><a href='{perma_link}'>This PO</a> has been {prefix}cancelled {icon}</p>",
+            [po_entity.purchaser_basecamp_assignee_id],
+        )
+    send_message(
+        '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> {prefix}cancelled {icon}</p>'.format(
+            perma_link=perma_link,
+            ppo_id=str(po_entity.pretty_po_id).zfill(4),
+            icon=icon,
+            prefix=prefix,
+        )
+    )
 
 
 def create_purchase_order(
@@ -89,9 +128,30 @@ def create_purchase_order(
 
     logging.info(new_po)
     logging.info(f"creating new po {new_po.po_id}, {new_po.pretty_po_id}")
+
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, new_po.po_id)
+    user = get_current_ndb_user()
+    if user.basecamp_access_token:
+        todo_url = create_todo_item(
+            user.basecamp_todos_url,
+            user.basecamp_access_token,
+            f"#{new_po.pretty_po_id} for {new_po.purchaser}",
+            f"<p>To approve or deny this request, click <a href='{perma_link}'>here</a>.</p>",
+        )
+        new_po.todo_url = todo_url
+        new_po.purchaser_basecamp_assignee_id = user.basecamp_assignee_id
     new_po.put()
 
-    return po_id
+    message_template = """
+        <p>Purchase order <a href='{perma_link}'>#{ppo_id}</a> created 🆕</p>
+    """.format(
+        perma_link=perma_link,
+        ppo_id=str(new_po.pretty_po_id).zfill(4),
+    )
+
+    send_message(message_template)
+
+    return new_po.po_id
 
 
 def create_interim_purchase_order():
@@ -117,6 +177,57 @@ def deny_purchase_order(po_entity):
     po_entity.is_denied = True
     logging.info("po# %s (%s) was just denied", po_entity.po_id, po_entity.pretty_po_id)
     po_entity.put()
+    user = get_current_ndb_user()
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    if po_entity.todo_url and po_entity.purchaser_basecamp_assignee_id:
+        update_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+            f"#{po_entity.pretty_po_id} for {po_entity.purchaser} ❌",
+            f"<p><a href='{perma_link}'>This PO</a> has been denied ❌</p>",
+            [po_entity.purchaser_basecamp_assignee_id],
+        )
+    send_message(
+        '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> denied ❌</p>'.format(
+            perma_link=perma_link,
+            ppo_id=str(po_entity.pretty_po_id).zfill(4),
+        )
+    )
+
+
+def invoice_purchase_order(po_entity):
+    """Mark a purchase order as invoiced"""
+    if not isinstance(po_entity, PurchaseOrder):
+        raise ValueError("The purchase order entity must be passed to this function")
+
+    po_entity.is_invoiced = not po_entity.is_invoiced
+    logging.info(
+        "po# %s (%s) was just invoiced", po_entity.po_id, po_entity.pretty_po_id
+    )
+    po_entity.put()
+    user = get_current_ndb_user()
+    perma_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_entity.po_id)
+    if not po_entity.is_invoiced:
+        # Return early, don't send an update for removing the invoice
+        return
+    if po_entity.todo_url and po_entity.purchaser_basecamp_assignee_id:
+        update_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+            f"#{po_entity.pretty_po_id} for {po_entity.purchaser} 💌",
+            f"<p><a href='{perma_link}'>This PO</a> has been invoiced 💌</p>",
+            [],
+        )
+        complete_todo_item(
+            po_entity.todo_url,
+            user.basecamp_access_token,
+        )
+    send_message(
+        '<p>Purchase order <a href="{perma_link}">#{ppo_id}</a> invoiced 💌</p>'.format(
+            perma_link=perma_link,
+            ppo_id=str(po_entity.pretty_po_id).zfill(4),
+        )
+    )
 
 
 def get_purchase_order_entity(po_id):
@@ -137,42 +248,3 @@ def get_purchase_order_to_dict(po_id=None, pretty_po_id=None, po_entity=None):
             raise ValueError("Couldn't find a purchase order with po_id of %s" % po_id)
     elif po_entity:
         return po_entity.to_dict()
-
-
-def send_admin_email_for_new_po(po_id):
-    po_dict = get_purchase_order_to_dict(po_id=po_id)
-    if not po_dict:
-        raise ValueError("There is no purchase order for this po_id: %s" % po_id)
-
-    user = get_current_user()
-    username = user["email"] if user["email"].find("@") else user["email"] + "@cdac.ca"
-    real_name = user["name"]
-    supplier = po_dict["supplier"]
-    product = po_dict["product"]
-    price = po_dict["price"]
-    approval_link = "%spurchase/%s/" % (SERVER_ADDRESS, po_id)
-
-    subject = "%s has made a purchase order request" % real_name
-
-    if ENVIRONMENT == "DEMO":
-        subject += " on %s" % ENVIRONMENT
-
-    email_template = """
-        <p>Hello,</p>
-        <p>{real_name} has made a purchase order request for the following:</p>
-        <ul>
-            <li>Supplier: {supplier}</li>
-            <li>Product: {product}</li>
-            <li>Price: ${:,.2f}</li>
-        </ul>
-        <p>To approve or deny this request, click <a href='{approval_link}'>here</a>.</p>
-        <p>Thank you, and have a great day!</p>
-    """.format(
-        price,
-        real_name=real_name,
-        supplier=supplier,
-        product=product,
-        approval_link=approval_link,
-    )
-
-    send_message(APPROVAL_ADMINS, subject, html=email_template)

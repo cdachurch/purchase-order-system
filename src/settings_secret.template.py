@@ -7,6 +7,7 @@ https://console.cloud.google.com/security/secret-manager?project=cdac-purchaseor
 and
 https://console.cloud.google.com/security/secret-manager?project=cdac-demo-purchaseorder
 """
+
 CLIENT_CONFIG = ""
 CLIENT_CONFIG_PROD = ""
 
@@ -14,3 +15,24 @@ SESSION_SECRET_DEMO = ""
 SESSION_SECRET_PROD = ""
 
 SENDGRID_KEY = ""
+
+# Get these from https://launchpad.37signals.com/integrations/17861
+BASECAMP_CLIENT_ID_PROD = ""
+BASECAMP_CLIENT_SECRET_PROD = ""
+
+# Get these from https://launchpad.37signals.com/integrations/17272
+BASECAMP_CLIENT_ID_DEMO = ""
+BASECAMP_CLIENT_SECRET_DEMO = ""
+
+# Get these from https://launchpad.37signals.com/integrations/17860
+BASECAMP_CLIENT_ID_LOCAL = ""
+BASECAMP_CLIENT_SECRET_LOCAL = ""
+
+# Okay, this one is a bit trickier to get. You'll need to authenticate with the API
+# and then I think there's a "get chatbots" api you can call that'll give you
+# a "lines" url. When you POST to that url, it sends messages to the chat.
+# Make sure to get the URL for the "PO Connection Debugging" project.
+BASECAMP_CAMPFIRE_URL = ""
+
+# Don't worry about this one ;)
+DELETE_LINES_URL = ""
