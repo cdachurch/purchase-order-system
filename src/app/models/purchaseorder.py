@@ -27,6 +27,7 @@ class PurchaseOrder(BaseModel):
     is_denied = ndb.BooleanProperty(default=False)
     is_invoiced = ndb.BooleanProperty(default=False)
     is_cancelled = ndb.BooleanProperty(default=False)
+    for_facilities = ndb.BooleanProperty(default=False)
 
     is_addressed = ndb.ComputedProperty(
         lambda self: self.is_approved or self.is_denied or self.is_cancelled
@@ -61,6 +62,7 @@ class PurchaseOrder(BaseModel):
             "created_date": self.created.strftime("%Y-%m-%d") if self.created else None,
             "last_updated": self.updated.strftime("%Y-%m-%d") if self.updated else None,
             "deleted_date": self.deleted.strftime("%Y-%m-%d") if self.deleted else None,
+            "for_facilities": self.for_facilities,
         }
 
     @classmethod

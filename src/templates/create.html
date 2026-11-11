@@ -11,10 +11,9 @@
     form._ppoid
     %}checked
     disabled{%
-    endif
-    %}
+    endif%}
   />
-  Click if vendor requires PO# before you place order:
+  Click if vendor requires PO# before you place order
 </label>
 {% if errors %} {% for error in errors %}
 <p class="bg-danger">{{ error }}</p>
@@ -89,6 +88,22 @@
       value="{{ form.account_code }}"
     />
   </div>
+  <div class="form-group">
+    <label>
+      <input
+        type="checkbox"
+        name="facility-po"
+        id="facility-po"
+        {%
+        if
+        form._facility_po
+        %}checked{%
+        endif%}
+      />
+      Facility PO
+    </label>
+  </div>
+
   <button type="submit" class="btn btn-primary" id="create-form-submit">
     Create PO
   </button>
