@@ -34,7 +34,6 @@ import settings
 
 from app.domain.user import get_current_ndb_user
 
-
 authorization_url = "https://launchpad.37signals.com/authorization.json"
 projects_url = "https://3.basecampapi.com/{account_id}/projects.json"
 my_personal_info = "https://3.basecampapi.com/{account_id}/my/profile.json"
@@ -137,8 +136,9 @@ def refresh_access_token(user):
     ).json()
 
     if "access_token" not in response:
+        logging.error(f"Failed to refresh access token: {response}")
         raise ValueError("Failed to refresh access token")
-    logging.info("successfully refreshed {user.name}'s access token")
+    logging.info(f"successfully refreshed {user.name}'s access token")
 
     user.basecamp_access_token = response["access_token"]
     user.put()
