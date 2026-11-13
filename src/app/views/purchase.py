@@ -107,6 +107,7 @@ def create_purchase_post():
         product = product.replace("\n", "<br />")
         price = post_body["price"]
         _po_id = post_body.get("_poid")
+        for_facilities = post_body.get("facility-po") == "on"
         # Strip any $ or , from the price
         price = price.replace("$", "").replace(",", "")
         account_code = post_body.get("accountcode")
@@ -119,6 +120,7 @@ def create_purchase_post():
                 price,
                 po_id=_po_id,
                 account_code=account_code,
+                for_facilities=for_facilities,
             )
     except (ValueError, KeyError) as ve:
         context["form"] = {
@@ -126,6 +128,7 @@ def create_purchase_post():
             "product": post_body.get("product"),
             "price": post_body.get("price"),
             "account_code": post_body.get("accountcode"),
+            "_facility_po": post_body.get("facility-po") == "on",
             "_poid": post_body.get("_poid"),
             "_ppoid": post_body.get("_ppoid"),
         }

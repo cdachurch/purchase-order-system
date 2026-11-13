@@ -90,7 +90,13 @@ def cancel_purchase_order(po_entity):
 
 
 def create_purchase_order(
-    purchaser, supplier, product, price, po_id=None, account_code=None
+    purchaser,
+    supplier,
+    product,
+    price,
+    po_id=None,
+    account_code=None,
+    for_facilities=False,
 ):
     """Creates a purchase order"""
     if not purchaser:
@@ -125,6 +131,7 @@ def create_purchase_order(
     if account_code:
         new_po.account_code = account_code
     new_po.price = float(price)
+    new_po.for_facilities = for_facilities
 
     logging.info(new_po)
     logging.info(f"creating new po {new_po.po_id}, {new_po.pretty_po_id}")

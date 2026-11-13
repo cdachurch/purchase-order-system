@@ -36,6 +36,10 @@
             <td>{{ created_date }}</td>
         </tr>
         <tr>
+            <td>Facility PO:</td>
+            <td>{{ for_facilities }}</td>
+        </tr>
+        <tr>
             <td>Invoice received?</td>
             <td><input type="checkbox"{% if is_invoiced %} checked{% endif %}{% if user_is_finance_admin %} value={{ po_id }}{% else %} disabled{% endif %} /></td>
         </tr>
