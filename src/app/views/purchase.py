@@ -128,7 +128,7 @@ def create_purchase_post():
             "product": post_body.get("product"),
             "price": post_body.get("price"),
             "account_code": post_body.get("accountcode"),
-            "_facility_po": for_facilities,
+            "_facility_po": post_body.get("facility-po") == "on",
             "_poid": post_body.get("_poid"),
             "_ppoid": post_body.get("_ppoid"),
         }
